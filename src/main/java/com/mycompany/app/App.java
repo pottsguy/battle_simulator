@@ -18,11 +18,6 @@ public class App
         String url = "jdbc:mariadb://localhost:3306/monsterManual";
         try {
             Connection dbConn = DriverManager.getConnection(url, "guy", "1234");
-            // PreparedStatement stmt = dbConn.prepareStatement("SELECT name FROM monsters");
-            // ResultSet results = stmt.executeQuery();
-            // while (results.next()) {
-            //     System.out.println(results.getString("name"));
-            // }
 
             String foreNames[] = new String[] {
                 "Antonio", "Imelda", "Pasqualina", "Gennaro", "Arca", "Porta", "Lama", "Poe", "Clerici", "Dommario", "Krochi", "Christine", "Pugnala", "Giovanna", "Poppea", "Concetta", "Mortaccio", "Cavallo", "Ramba", "O'Sole", "Ambrojoe", "Gallo", "Divano", "Zi'Assunta", "Sigma", "Robbert", "She-Moon", "Santa",
@@ -40,63 +35,47 @@ public class App
             Random rndm = new Random();
 
             String query = "INSERT INTO pregens (name, class, strength, dexterity, intelligence, charisma) VALUES (?,?,?,?,?,?)";
+            final int GEN_ATTR_START_IX = 3; // remember, SQL uses one-based indices (unlike java which is zero-based)
+            final int GEN_ATTR_COUNT = 4;
             PreparedStatement stmt = dbConn.prepareStatement(query);
-
-            // to access an array value e.g.: foreNames[4]
 
             for (int k = 0; k < 10000; k++) {
                 stmt.setString(1, foreNames[rndm.nextInt(foreNames.length)] + " " + surNames[rndm.nextInt(surNames.length)]);
-                //int attrs[] = new int[4];
-                // int maxAttrIndex = -1; // the index (aka the place) of the highest attribute we've seen so far
 
-                // the indices of the highest attributes we've seen so far
+                //generates stats for str, dex, int & cha with 3d6 (re-roll 1's, giving a 2-6 range)
                 ArrayList<Integer> maxAttrsIndices = new ArrayList<Integer>();
-                int maxAttrValue = 0;  // the value of the highest attribute we've seen so far
-                for (int i = 0; i < 4; i++) {
+                int maxAttrValue = 0;
+                for (int i = 0; i < GEN_ATTR_COUNT; i++) {
                     int roll1 = rndm.nextInt(5)+2;
                     int roll2 = rndm.nextInt(5)+2;
                     int roll3 = rndm.nextInt(5)+2;
                     int attrValue = roll1 + roll2 + roll3;
-                    //attrs[i] = attrValue;
-                    stmt.setInt(i+3, attrValue);
+                    stmt.setInt(GEN_ATTR_START_IX + i, attrValue);
 
+                    //keeps track of highest stat to determine class
                     if (attrValue == maxAttrValue) {
-                        //add i to maxAttrIndices
                         maxAttrValue = attrValue;
                         maxAttrsIndices.add(i);
-                        //maxAttrIndex = i;
                     } else if (attrValue > maxAttrValue) {
-                        //delete everything from maxAttrIndices
                         maxAttrValue = attrValue;
                         maxAttrsIndices.clear();
                         maxAttrsIndices.add(i);
-                        //add i to maxAttrIndices
                     }
                 }
 
-
-                //stmt.setInt(3, attrs[0]);
-                //stmt.setInt(4, attrs[1]);
-                //stmt.setInt(5, attrs[2]);
-                //stmt.setInt(6, attrs[3]);
-
+                // each of these base classes corresponds to an attribute (respective of position in the query)
                 String charClass[] = new String[] {
                     "Warrior", "Thief", "Sage", "Shaman"
                 };
 
-                //randomly choose an item from maxAttrIndices to be the value of charClass[]
-                
-
+                //determines class based on highest attribute
                 if (maxAttrValue < 13) {
                     stmt.setString(2, "Normie");
                 } else {
-                    //stmt.setString(2, charClass[maxAttrIndex]);
+                    //randomises class if there are two equal maximum attributes
                     stmt.setString(2, charClass[maxAttrsIndices.get(rndm.nextInt(maxAttrsIndices.size()))]);
-                    //foreNames[rndm.nextInt(foreNames.length)]
                 };
                 stmt.executeUpdate();
-                // stmt.setString(2, charClass[maxAttrIndex]);
-                // stmt.executeUpdate();
             }
 
             dbConn.close();
