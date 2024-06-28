@@ -131,7 +131,7 @@ public class App {
             System.out.println("There are currently " + alliesCount + " allies and " + enemiesCount + " enemies active.");
 
             //this randomly selects an opposing, non-incapacitated target for each combatant in order.
-            for (int i=0; i<combatOrder.length; i++) {
+            for (int i=0; combatOngoing && i < combatOrder.length; i++) {
                 Combatant attacker = combatOrder[i];
                 Combatant target = combatOrder[rndm.nextInt(combatOrder.length)];
                 while (target.incapacitated || attacker.team == target.team) {
