@@ -72,17 +72,13 @@ public class App {
             System.out.println("--- Round " + round + ". ---");
             round++;
 
-            //this is where initiative is rolled (d6, 1-3=enemies, 4-6=allies) and combatants are arranged in order
+            //this is where initiative is rolled (d6, 1-3=enemies, 4-6=allies).
             int initiativeRoll = rndm.nextInt(6)+1;
-            int initiativeIndex = 0;
             Team first;
-            Team second;
             if (initiativeRoll<4) {
                 first = Team.Enemy;
-                second = Team.Ally;
             } else {
                 first = Team.Ally;
-                second = Team.Enemy;
             }
             System.out.println("Initiative roll: " + initiativeRoll + ", the " + first.toString() + " have the initiative.");
 
@@ -93,6 +89,7 @@ public class App {
                 combatOrder[allies.length+i]=enemies[i];
             }
             
+            //this sorts the combatants according to team and rank.
             Arrays.sort (combatOrder, (Combatant a, Combatant b) -> {
                 if (a.rank == Rank.Artillery) {
                     if (b.rank == Rank.Artillery && b.team == first) {
