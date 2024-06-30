@@ -7,9 +7,13 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Collections;
 
+enum Team {
+    Ally, Enemy
+}
+
 //this defines the stats that a combatant has.
 class Combatant {
-    String team;
+    Team team;
     String name;
     int hitsMax;
     int hitsCurrent;
@@ -20,7 +24,7 @@ class Combatant {
     boolean incapacitated;
 
     // these stats are currently the same for all members of the "combatant" class.
-    Combatant(String team, String name) {
+    Combatant(Team team, String name) {
         this.team = team;
         this.name = name;
         this.hitsMax = 6;
@@ -39,19 +43,19 @@ public class App {
 
         //this is where the combatants are added to their individual ranks: [0][]=vanguard, [1][]=rear, [2][]=artillery
         Combatant allies[][] = new Combatant[3][2];
-        allies[0][0] = new Combatant("Ally", "Knight 1");
-        allies[0][1] = new Combatant("Ally", "Knight 2");
-        allies[1][0] = new Combatant("Ally", "Spearman 1");
-        allies[1][1] = new Combatant("Ally", "Spearman 2");
-        allies[2][0] = new Combatant("Ally", "Archer 1");
-        allies[2][1] = new Combatant("Ally", "Archer 2");
+        allies[0][0] = new Combatant(Team.Ally, "Knight 1");
+        allies[0][1] = new Combatant(Team.Ally, "Knight 2");
+        allies[1][0] = new Combatant(Team.Ally, "Spearman 1");
+        allies[1][1] = new Combatant(Team.Ally, "Spearman 2");
+        allies[2][0] = new Combatant(Team.Ally, "Archer 1");
+        allies[2][1] = new Combatant(Team.Ally, "Archer 2");
         Combatant enemies[][] = new Combatant[3][2];
-        enemies[0][0] = new Combatant("Enemy", "Trorc 1");
-        enemies[0][1] = new Combatant("Enemy", "Trorc 2");
-        enemies[1][0] = new Combatant("Enemy", "Trobgoblin 1");
-        enemies[1][1] = new Combatant("Enemy", "Trobgoblin 2");
-        enemies[2][0] = new Combatant("Enemy", "Trobold 1");
-        enemies[2][1] = new Combatant("Enemy", "Trobold 2");
+        enemies[0][0] = new Combatant(Team.Enemy, "Trorc 1");
+        enemies[0][1] = new Combatant(Team.Enemy, "Trorc 2");
+        enemies[1][0] = new Combatant(Team.Enemy, "Trobgoblin 1");
+        enemies[1][1] = new Combatant(Team.Enemy, "Trobgoblin 2");
+        enemies[2][0] = new Combatant(Team.Enemy, "Trobold 1");
+        enemies[2][1] = new Combatant(Team.Enemy, "Trobold 2");
 
         //this is the start of the combat cycle, the number of rounds is currently static
         Combatant combatOrder[] = new Combatant[allies[0].length + allies[1].length + allies[2].length + enemies[0].length + enemies[1].length + enemies[2].length];
@@ -104,9 +108,9 @@ public class App {
             int alliesCount = 0;
             int enemiesCount = 0;
             for (int i=0; i<combatOrder.length; i++) {
-                if (combatOrder[i].team == "Ally" && combatOrder[i].incapacitated == false) {
+                if (combatOrder[i].team == Team.Ally && combatOrder[i].incapacitated == false) {
                     alliesCount++;
-                } else if (combatOrder[i].team == "Enemy" && combatOrder[i].incapacitated == false) {
+                } else if (combatOrder[i].team == Team.Enemy && combatOrder[i].incapacitated == false) {
                     enemiesCount++;
                 }
             }
@@ -136,11 +140,13 @@ public class App {
                         target.hitsCurrent -= attacker.maxDamage;
                         System.out.println(attacker.name + " deals a critical hit against " + target.name + ", dealing " + attacker.maxDamage + " damage and leaving them with " + target.hitsCurrent + " hits.");
                     }
+
+                    //this marks if the target has been killed
                     if (target.hitsCurrent < 1) {
                         target.incapacitated = true;
-                        if (target.team == "Ally") {
+                        if (target.team == Team.Ally) {
                             alliesCount--;
-                        } else if (target.team == "Enemy") {
+                        } else if (target.team == Team.Enemy) {
                             enemiesCount--;
                         }
                         if (alliesCount > 0 && enemiesCount > 0) {
