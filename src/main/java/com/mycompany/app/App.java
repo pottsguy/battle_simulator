@@ -4,17 +4,23 @@ package com.mycompany.app;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.Collections;
+import java.util.Comparator;
 
 enum Team {
     Ally, Enemy
+}
+enum Rank {
+    Vanguard, Rear, Artillery
 }
 
 //this defines the stats that a combatant has.
 class Combatant {
     Team team;
     String name;
+    Rank rank;
     int hitsMax;
     int hitsCurrent;
     int attack;
@@ -24,9 +30,10 @@ class Combatant {
     boolean incapacitated;
 
     // these stats are currently the same for all members of the "combatant" class.
-    Combatant(Team team, String name) {
+    Combatant(Team team, String name, Rank rank) {
         this.team = team;
         this.name = name;
+        this.rank = rank;
         this.hitsMax = 6;
         this.hitsCurrent = this.hitsMax;
         this.attack = 1;
@@ -42,23 +49,23 @@ public class App {
         Random rndm = new Random();
 
         //this is where the combatants are added to their individual ranks: [0][]=vanguard, [1][]=rear, [2][]=artillery
-        Combatant allies[][] = new Combatant[3][2];
-        allies[0][0] = new Combatant(Team.Ally, "Knight 1");
-        allies[0][1] = new Combatant(Team.Ally, "Knight 2");
-        allies[1][0] = new Combatant(Team.Ally, "Spearman 1");
-        allies[1][1] = new Combatant(Team.Ally, "Spearman 2");
-        allies[2][0] = new Combatant(Team.Ally, "Archer 1");
-        allies[2][1] = new Combatant(Team.Ally, "Archer 2");
-        Combatant enemies[][] = new Combatant[3][2];
-        enemies[0][0] = new Combatant(Team.Enemy, "Trorc 1");
-        enemies[0][1] = new Combatant(Team.Enemy, "Trorc 2");
-        enemies[1][0] = new Combatant(Team.Enemy, "Trobgoblin 1");
-        enemies[1][1] = new Combatant(Team.Enemy, "Trobgoblin 2");
-        enemies[2][0] = new Combatant(Team.Enemy, "Trobold 1");
-        enemies[2][1] = new Combatant(Team.Enemy, "Trobold 2");
+        Combatant allies[] = new Combatant[6];
+        allies[0] = new Combatant(Team.Ally, "Knight 1", Rank.Vanguard);
+        allies[1] = new Combatant(Team.Ally, "Knight 2", Rank.Vanguard);
+        allies[2] = new Combatant(Team.Ally, "Spearman 1", Rank.Rear);
+        allies[3] = new Combatant(Team.Ally, "Spearman 2", Rank.Rear);
+        allies[4] = new Combatant(Team.Ally, "Archer 1", Rank.Artillery);
+        allies[5] = new Combatant(Team.Ally, "Archer 2", Rank.Artillery);
+        Combatant enemies[] = new Combatant[6];
+        enemies[0] = new Combatant(Team.Enemy, "Trorc 1", Rank.Vanguard);
+        enemies[1] = new Combatant(Team.Enemy, "Trorc 2", Rank.Vanguard);
+        enemies[2] = new Combatant(Team.Enemy, "Trobgoblin 1", Rank.Rear);
+        enemies[3] = new Combatant(Team.Enemy, "Trobgoblin 2", Rank.Rear);
+        enemies[4] = new Combatant(Team.Enemy, "Trobold 1", Rank.Artillery);
+        enemies[5] = new Combatant(Team.Enemy, "Trobold 2", Rank.Artillery);
 
         //this is the start of the combat cycle, the number of rounds is currently static
-        Combatant combatOrder[] = new Combatant[allies[0].length + allies[1].length + allies[2].length + enemies[0].length + enemies[1].length + enemies[2].length];
+        Combatant combatOrder[] = new Combatant[allies.length + enemies.length];
         boolean combatOngoing = true;
         int round = 1;
         while (combatOngoing) {
@@ -68,41 +75,47 @@ public class App {
             //this is where initiative is rolled (d6, 1-3=enemies, 4-6=allies) and combatants are arranged in order
             int initiativeRoll = rndm.nextInt(6)+1;
             int initiativeIndex = 0;
-            Combatant first[][];
-            Combatant second[][];
+            Team first;
+            Team second;
             if (initiativeRoll<4) {
-                first = enemies;
-                second = allies;
-                System.out.println("Initiative roll: " + initiativeRoll + ", enemies have the initiative.");
+                first = Team.Enemy;
+                second = Team.Ally;
             } else {
-                first = allies;
-                second = enemies;
-                System.out.println("Initiative roll: " + initiativeRoll + ", allies have the initiative.");
+                first = Team.Ally;
+                second = Team.Enemy;
             }
-            for (int i=0; i<first[2].length; i++) {
-                combatOrder[initiativeIndex] = first[2][i];
-                initiativeIndex++;
+            System.out.println("Initiative roll: " + initiativeRoll + ", the " + first.toString() + " have the initiative.");
+
+            for (int i=0; i<allies.length; i++) {
+                combatOrder[i]=allies[i];
             }
-            for (int i=0; i<second[2].length; i++) {
-                combatOrder[initiativeIndex] = second[2][i];
-                initiativeIndex++;
+            for (int i=0; i<enemies.length; i++) {
+                combatOrder[allies.length+i]=enemies[i];
             }
-            for (int i=0; i<first[0].length; i++) {
-                combatOrder[initiativeIndex] = first[0][i];
-                initiativeIndex++;
-            }
-            for (int i=0; i<second[0].length; i++) {
-                combatOrder[initiativeIndex] = second[0][i];
-                initiativeIndex++;
-            }
-            for (int i=0; i<first[1].length; i++) {
-                combatOrder[initiativeIndex] = first[1][i];
-                initiativeIndex++;
-            }
-            for (int i=0; i<second[1].length; i++) {
-                combatOrder[initiativeIndex] = second[1][i];
-                initiativeIndex++;
-            }
+            
+            Arrays.sort (combatOrder, (Combatant a, Combatant b) -> {
+                if (a.rank == Rank.Artillery) {
+                    if (b.rank == Rank.Artillery && b.team == first) {
+                        return 1;
+                    } else {
+                        return -1;
+                    }
+                } else if (a.rank == Rank.Vanguard) {
+                    if (b.rank == Rank.Artillery || b.rank == Rank.Vanguard && b.team == first) {
+                        return 1;
+                    } else {
+                        return -1;
+                    }
+                } else if (a.rank == Rank.Rear) {
+                    if (b.rank == Rank.Artillery || b.rank == Rank.Vanguard || b.rank == Rank.Rear && b.team == first) {
+                        return 1;
+                    } else {
+                        return -1;
+                    }
+                } else {
+                    return 0;
+                }
+            });
 
             //this counts the number of active combatants each round
             int alliesCount = 0;
