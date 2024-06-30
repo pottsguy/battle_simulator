@@ -54,7 +54,7 @@ public class App {
         enemies[2][1] = new Combatant("Enemy", "Trobold 2");
 
         //this is the start of the combat cycle, the number of rounds is currently static
-        Combatant combatOrder[] = new Combatant[allies[0].length + allies[1].length + allies[2].length + enemies[0].length + enemies[1].length + enemies[2].length];        
+        Combatant combatOrder[] = new Combatant[allies[0].length + allies[1].length + allies[2].length + enemies[0].length + enemies[1].length + enemies[2].length];
         boolean combatOngoing = true;
         int round = 1;
         while (combatOngoing) {
@@ -64,58 +64,40 @@ public class App {
             //this is where initiative is rolled (d6, 1-3=enemies, 4-6=allies) and combatants are arranged in order
             int initiativeRoll = rndm.nextInt(6)+1;
             int initiativeIndex = 0;
+            Combatant first[][];
+            Combatant second[][];
             if (initiativeRoll<4) {
+                first = enemies;
+                second = allies;
                 System.out.println("Initiative roll: " + initiativeRoll + ", enemies have the initiative.");
-                for (int i=0; i<enemies[2].length; i++) {
-                    combatOrder[initiativeIndex] = enemies[2][i];
-                    initiativeIndex++;
-                }
-                for (int i=0; i<allies[2].length; i++) {
-                    combatOrder[initiativeIndex] = allies[2][i];
-                    initiativeIndex++;
-                }
-                for (int i=0; i<enemies[0].length; i++) {
-                    combatOrder[initiativeIndex] = enemies[0][i];
-                    initiativeIndex++;
-                }
-                for (int i=0; i<allies[0].length; i++) {
-                    combatOrder[initiativeIndex] = allies[0][i];
-                    initiativeIndex++;
-                }
-                for (int i=0; i<enemies[1].length; i++) {
-                    combatOrder[initiativeIndex] = enemies[1][i];
-                    initiativeIndex++;
-                }
-                for (int i=0; i<allies[1].length; i++) {
-                    combatOrder[initiativeIndex] = allies[1][i];
-                    initiativeIndex++;
-                }
             } else {
+                first = allies;
+                second = enemies;
                 System.out.println("Initiative roll: " + initiativeRoll + ", allies have the initiative.");
-                for (int i=0; i<allies[2].length; i++) {
-                    combatOrder[initiativeIndex] = allies[2][i];
-                    initiativeIndex++;
-                }
-                for (int i=0; i<enemies[2].length; i++) {
-                    combatOrder[initiativeIndex] = enemies[2][i];
-                    initiativeIndex++;
-                }
-                for (int i=0; i<allies[0].length; i++) {
-                    combatOrder[initiativeIndex] = allies[0][i];
-                    initiativeIndex++;
-                }
-                for (int i=0; i<enemies[0].length; i++) {
-                    combatOrder[initiativeIndex] = enemies[0][i];
-                    initiativeIndex++;
-                }
-                for (int i=0; i<allies[1].length; i++) {
-                    combatOrder[initiativeIndex] = allies[1][i];
-                    initiativeIndex++;
-                }
-                for (int i=0; i<enemies[1].length; i++) {
-                    combatOrder[initiativeIndex] = enemies[1][i];
-                    initiativeIndex++;
-                }
+            }
+            for (int i=0; i<first[2].length; i++) {
+                combatOrder[initiativeIndex] = first[2][i];
+                initiativeIndex++;
+            }
+            for (int i=0; i<second[2].length; i++) {
+                combatOrder[initiativeIndex] = second[2][i];
+                initiativeIndex++;
+            }
+            for (int i=0; i<first[0].length; i++) {
+                combatOrder[initiativeIndex] = first[0][i];
+                initiativeIndex++;
+            }
+            for (int i=0; i<second[0].length; i++) {
+                combatOrder[initiativeIndex] = second[0][i];
+                initiativeIndex++;
+            }
+            for (int i=0; i<first[1].length; i++) {
+                combatOrder[initiativeIndex] = first[1][i];
+                initiativeIndex++;
+            }
+            for (int i=0; i<second[1].length; i++) {
+                combatOrder[initiativeIndex] = second[1][i];
+                initiativeIndex++;
             }
 
             //this counts the number of active combatants each round
@@ -131,6 +113,7 @@ public class App {
             System.out.println("There are currently " + alliesCount + " allies and " + enemiesCount + " enemies active.");
 
             //this randomly selects an opposing, non-incapacitated target for each combatant in order.
+            //the vanguard should target the vanguard, the rear should also target the vanguard, the artillery should target the rear/artillery
             for (int i=0; combatOngoing && i < combatOrder.length; i++) {
                 Combatant attacker = combatOrder[i];
                 Combatant target = combatOrder[rndm.nextInt(combatOrder.length)];
