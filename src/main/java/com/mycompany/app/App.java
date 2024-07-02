@@ -48,7 +48,7 @@ public class App {
     public static void main(String[] args) {
         Random rndm = new Random();
 
-        //this is where the combatants are added to their individual ranks: [0][]=vanguard, [1][]=rear, [2][]=artillery
+        //this is where the combatants are added to their teams.
         Combatant allies[] = new Combatant[6];
         allies[0] = new Combatant(Team.Ally, "Knight 1", Rank.Vanguard);
         allies[1] = new Combatant(Team.Ally, "Knight 2", Rank.Vanguard);
@@ -64,7 +64,7 @@ public class App {
         enemies[4] = new Combatant(Team.Enemy, "Trobold 1", Rank.Artillery);
         enemies[5] = new Combatant(Team.Enemy, "Trobold 2", Rank.Artillery);
 
-        //this is the start of the combat cycle, the number of rounds is currently static
+        //this is the start of the combat cycle, the number of rounds is currently static.
         Combatant combatOrder[] = new Combatant[allies.length + enemies.length];
         boolean combatOngoing = true;
         int round = 1;
@@ -114,7 +114,7 @@ public class App {
                 }
             });
 
-            //this counts the number of active combatants each round
+            //this counts the number of active combatants each round.
             int alliesCount = 0;
             int enemiesCount = 0;
             for (int i=0; i<combatOrder.length; i++) {
@@ -126,14 +126,49 @@ public class App {
             }
             System.out.println("There are currently " + alliesCount + " allies and " + enemiesCount + " enemies active.");
 
-            //this randomly selects an opposing, non-incapacitated target for each combatant in order.
-            //the vanguard should target the vanguard, the rear should also target the vanguard, the artillery should target the rear/artillery
+            //all potential targets are added to a targets list.
             for (int i=0; combatOngoing && i < combatOrder.length; i++) {
                 Combatant attacker = combatOrder[i];
-                Combatant target = combatOrder[rndm.nextInt(combatOrder.length)];
-                while (target.incapacitated || attacker.team == target.team) {
-                    target = combatOrder[rndm.nextInt(combatOrder.length)];
+                ArrayList<Combatant> targets = new ArrayList<Combatant>();
+                for (int n=0; n<combatOrder.length; n++) {
+                    Combatant candidate = combatOrder[n];
+                    if (candidate.incapacitated == false && candidate.team != attacker.team) {
+                        targets.add(candidate);
+                    }
                 }
+
+                //the potential targets are sorted by priority.
+                Collections.shuffle(targets);
+                Collections.sort (targets, (Combatant a, Combatant b) -> {
+                    if (attacker.rank == Rank.Vanguard || attacker.rank == Rank.Rear) {
+                        if (a.rank == Rank.Vanguard && b.rank != Rank.Vanguard) {
+                            return -1;
+                        } else if (b.rank == Rank.Vanguard && a.rank != Rank.Vanguard) {
+                            return 1;
+                        } else if (a.rank == Rank.Rear && b.rank == Rank.Artillery) {
+                            return -1;
+                        } else if (b.rank == Rank.Rear && a.rank == Rank.Artillery) {
+                            return -1;
+                        } else {
+                            return 0;
+                        }
+                    } else if (attacker.rank == Rank.Artillery) {
+                        if (a.rank == Rank.Vanguard && b.rank != Rank.Vanguard) {
+                            return 1;
+                        } else if (b.rank == Rank.Vanguard && a.rank != Rank.Vanguard) {
+                            return -1;
+                        } else {
+                            return 0;
+                        }
+                    } else {
+                        return 0;
+                    }
+                });
+
+                //the top priority target is chosen as the target.
+                Combatant target = targets.get(0);
+                assert !target.incapacitated;
+                assert target.team != attacker.team;
 
                 //this is where the attack roll occurs.
                 if (attacker.incapacitated == false) {
@@ -160,7 +195,7 @@ public class App {
                             enemiesCount--;
                         }
                         if (alliesCount > 0 && enemiesCount > 0) {
-                            System.out.println(target.name + " has been incapacitated, there are now " + alliesCount + " allies and " + enemiesCount + " enemies active.");
+                            System.out.println("x " + target.name + " has been incapacitated, there are now " + alliesCount + " allies and " + enemiesCount + " enemies active.");
                         } else {
                             System.out.println("The combat is over, the " + target.team + " has been wiped out.");
                             combatOngoing = false;
