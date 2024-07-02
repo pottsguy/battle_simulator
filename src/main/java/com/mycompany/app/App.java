@@ -68,6 +68,7 @@ public class App {
         Combatant combatOrder[] = new Combatant[allies.length + enemies.length];
         boolean combatOngoing = true;
         int round = 1;
+        boolean moraleChecked = false;
         while (combatOngoing) {
             System.out.println("--- Round " + round + ". ---");
             round++;
@@ -201,6 +202,16 @@ public class App {
                             combatOngoing = false;
                         }
                     }
+                }
+            }
+            
+            if (!moraleChecked && combatOngoing && enemiesCount<enemies.length/2) {
+                moraleChecked = true;
+                if (rndm.nextInt(6)<4) {
+                    System.out.println("The enemy is fleeing.");
+                    combatOngoing = false;
+                } else {
+                    System.out.println("The enemy is fighting on.");
                 }
             }
         }
