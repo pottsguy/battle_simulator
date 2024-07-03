@@ -44,40 +44,56 @@ class Combatant {
     }
 }
 
+//1. get combatant (team, name, rank, hits etc.) -> add combatant to battlefield;
+//2. run combat (battlefield) -> victor & changes to characters e.g. hits, equipment, death etc.;
+//      1. sort battlefield (battlefield) -> sorted battlefield;
+//      2. run attacks (sorted battlefield, battleOngoing, rng) -> hits & incapacitation etc.;
+//      3. possibly flee (moraleChecked, rng)
+
+class CombatantCounts {
+    int enemiesActive;
+    int enemiesTotal;
+    int alliesActive;
+}
+
 public class App {
+
+    // reads the battlefield and returns the number of enemies (total and current) and allies (current)
+    public static CombatantCounts countCombatants(ArrayList<Combatant> bfld) {
+        CombatantCounts myCC;
+        myCC = new CombatantCounts();
+        for (int i=0; i<bfld.size(); i++) {
+            if (bfld.get(i).team == Team.Ally && !bfld.get(i).incapacitated) {
+                myCC.alliesActive++;
+            } else if (bfld.get(i).team == Team.Enemy) {
+                myCC.enemiesTotal++;
+                if (!bfld.get(i).incapacitated) {
+                    myCC.enemiesActive++;
+                }
+            }
+        }
+        return myCC;
+    }
+
     public static void main(String[] args) {
         Random rndm = new Random();
 
         //this is where the combatants are added to their teams.
-        Combatant battlefield[] = new Combatant [12];
-        battlefield[0] = new Combatant(Team.Ally, "Knight 1", Rank.Vanguard);
-        battlefield[1] = new Combatant(Team.Ally, "Knight 2", Rank.Vanguard);
-        battlefield[2] = new Combatant(Team.Ally, "Spearman 1", Rank.Rear);
-        battlefield[3] = new Combatant(Team.Ally, "Spearman 2", Rank.Rear);
-        battlefield[4] = new Combatant(Team.Ally, "Archer 1", Rank.Artillery);
-        battlefield[5] = new Combatant(Team.Ally, "Archer 2", Rank.Artillery);
-        battlefield[6] = new Combatant(Team.Enemy, "Trorc 1", Rank.Vanguard);
-        battlefield[7] = new Combatant(Team.Enemy, "Trorc 2", Rank.Vanguard);
-        battlefield[8] = new Combatant(Team.Enemy, "Trobgoblin 1", Rank.Rear);
-        battlefield[9] = new Combatant(Team.Enemy, "Trobgoblin 2", Rank.Rear);
-        battlefield[10] = new Combatant(Team.Enemy, "Trobold 1", Rank.Artillery);
-        battlefield[11] = new Combatant(Team.Enemy, "Trobold 2", Rank.Artillery);
-        /*Combatant allies[] = new Combatant[6];
-        allies[0] = new Combatant(Team.Ally, "Knight 1", Rank.Vanguard);
-        allies[1] = new Combatant(Team.Ally, "Knight 2", Rank.Vanguard);
-        allies[2] = new Combatant(Team.Ally, "Spearman 1", Rank.Rear);
-        allies[3] = new Combatant(Team.Ally, "Spearman 2", Rank.Rear);
-        allies[4] = new Combatant(Team.Ally, "Archer 1", Rank.Artillery);
-        allies[5] = new Combatant(Team.Ally, "Archer 2", Rank.Artillery);
-        Combatant enemies[] = new Combatant[6];
-        enemies[0] = new Combatant(Team.Enemy, "Trorc 1", Rank.Vanguard);
-        enemies[1] = new Combatant(Team.Enemy, "Trorc 2", Rank.Vanguard);
-        enemies[2] = new Combatant(Team.Enemy, "Trobgoblin 1", Rank.Rear);
-        enemies[3] = new Combatant(Team.Enemy, "Trobgoblin 2", Rank.Rear);
-        enemies[4] = new Combatant(Team.Enemy, "Trobold 1", Rank.Artillery);
-        enemies[5] = new Combatant(Team.Enemy, "Trobold 2", Rank.Artillery);*/
+        ArrayList<Combatant> battlefield = new ArrayList<Combatant>();
+        battlefield.add(new Combatant(Team.Ally, "Knight 1", Rank.Vanguard));
+        battlefield.add(new Combatant(Team.Ally, "Knight 2", Rank.Vanguard));
+        battlefield.add(new Combatant(Team.Ally, "Spearman 1", Rank.Rear));
+        battlefield.add(new Combatant(Team.Ally, "Spearman 2", Rank.Rear));
+        battlefield.add(new Combatant(Team.Ally, "Archer 1", Rank.Artillery));
+        battlefield.add(new Combatant(Team.Ally, "Archer 2", Rank.Artillery));
+        battlefield.add(new Combatant(Team.Enemy, "Trorc 1", Rank.Vanguard));
+        battlefield.add(new Combatant(Team.Enemy, "Trorc 2", Rank.Vanguard));
+        battlefield.add(new Combatant(Team.Enemy, "Trobgoblin 1", Rank.Rear));
+        battlefield.add(new Combatant(Team.Enemy, "Trobgoblin 2", Rank.Rear));
+        battlefield.add(new Combatant(Team.Enemy, "Trobold 1", Rank.Artillery));
+        battlefield.add(new Combatant(Team.Enemy, "Trobold 2", Rank.Artillery));
 
-        //this is the start of the combat cycle, the number of rounds is currently static.
+        //this is the start of the combat cycle.
         boolean combatOngoing = true;
         int round = 1;
         boolean moraleChecked = false;
@@ -96,7 +112,7 @@ public class App {
             System.out.println("Initiative roll: " + initiativeRoll + ", the " + first.toString() + " have the initiative.");
 
             //this sorts the combatants according to team, rank and initiative.
-            Arrays.sort (battlefield, (Combatant a, Combatant b) -> {
+            Collections.sort (battlefield, (Combatant a, Combatant b) -> {
                 if (a.rank == Rank.Artillery) {
                     if (b.rank == Rank.Artillery && b.team == first) {
                         return 1;
@@ -121,28 +137,15 @@ public class App {
             });
 
             //this counts the number of active combatants each round.
-            int alliesCount = 0;
-            int enemiesTotal = 0;
-            int enemiesCount = 0;
-            for (int i=0; i<battlefield.length; i++) {
-                if (battlefield[i].team == Team.Ally && !battlefield[i].incapacitated) {
-                    alliesCount++;
-                } else if (battlefield[i].team == Team.Enemy) {
-                    enemiesTotal++;
-                    if (!battlefield[i].incapacitated) {
-                        enemiesCount++;
-                    }
-                }
-            }
-
-            System.out.println("There are currently " + alliesCount + " allies and " + enemiesCount + " enemies active.");
+            CombatantCounts count = countCombatants(battlefield);
+            System.out.println("There are currently " + count.alliesActive + " allies and " + count.enemiesActive + " enemies active.");
 
             //all potential targets are added to a targets list.
-            for (int i=0; combatOngoing && i < battlefield.length; i++) {
-                Combatant attacker = battlefield[i];
+            for (int i=0; combatOngoing && i < battlefield.size(); i++) {
+                Combatant attacker = battlefield.get(i);
                 ArrayList<Combatant> targets = new ArrayList<Combatant>();
-                for (int n=0; n<battlefield.length; n++) {
-                    Combatant candidate = battlefield[n];
+                for (int n=0; n<battlefield.size(); n++) {
+                    Combatant candidate = battlefield.get(n);
                     if (candidate.incapacitated == false && candidate.team != attacker.team) {
                         targets.add(candidate);
                     }
@@ -183,7 +186,7 @@ public class App {
 
                 //this is where the attack roll occurs.
                 if (attacker.incapacitated == false) {
-                    int attackRoll = rndm.nextInt(20) + battlefield[i].attack;
+                    int attackRoll = rndm.nextInt(20) + battlefield.get(i).attack;
                     if (attackRoll < 10) {
                         System.out.println(attacker.name + " misses " + target.name + ", leaving them with " + target.hitsCurrent + " hits.");
                     } else if (attackRoll < 15) {
@@ -201,12 +204,12 @@ public class App {
                     if (target.hitsCurrent < 1) {
                         target.incapacitated = true;
                         if (target.team == Team.Ally) {
-                            alliesCount--;
+                            count.alliesActive--;
                         } else if (target.team == Team.Enemy) {
-                            enemiesCount--;
+                            count.enemiesActive--;
                         }
-                        if (alliesCount > 0 && enemiesCount > 0) {
-                            System.out.println("x " + target.name + " has been incapacitated, there are now " + alliesCount + " allies and " + enemiesCount + " enemies active.");
+                        if (count.alliesActive > 0 && count.enemiesActive > 0) {
+                            System.out.println("x " + target.name + " has been incapacitated, there are now " + count.alliesActive + " allies and " + count.enemiesActive + " enemies active.");
                         } else {
                             System.out.println("The combat is over, the " + target.team + " has been wiped out.");
                             combatOngoing = false;
@@ -216,7 +219,7 @@ public class App {
             }
 
             //checks morale if the enemy is reduced to half numbers.
-            if (!moraleChecked && combatOngoing && enemiesCount<enemiesTotal/2) {
+            if (!moraleChecked && combatOngoing && count.enemiesActive<count.enemiesTotal/2) {
                 moraleChecked = true;
                 if (rndm.nextInt(6)<4) {
                     System.out.println("The Enemy is fleeing.");
@@ -241,10 +244,9 @@ public class App {
                     "Ariaric", "Aoric", "Athanaric", "Rothesteus", "Winguric", "Alavivus", "Fritigern", "Athaulf",
                     "Sigeric", "Wallia", "Theodoric", "Thorismund", "Euric", "Gesalec", "Theudis", "Theudigisel",
                     "Agila", "Athanagild", "Luiva", "Liuvigild", "Hermenegild", "Recarred", "Segga", "Argimund",
-                    "Witteric", "Gundemar",
-                    "Sisebut", "Swinthila", "Recimmer", "Sissenand", "Iudila", "Chintila", "Tulga", "Chindaswinth",
-                    "Recceswinth", "Froia", "Wamba", "Hilderic", "Paul", "Erwig", "Egica", "Suniefred", "Wittiza",
-                    "Roderic", "Oppas", "Ardo"
+                    "Witteric", "Gundemar", "Sisebut", "Swinthila", "Recimmer", "Sissenand", "Iudila", "Chintila", 
+                    "Tulga", "Chindaswinth", "Recceswinth", "Froia", "Wamba", "Hilderic", "Paul", "Erwig", "Egica", 
+                    "Suniefred", "Wittiza", "Roderic", "Oppas", "Ardo"
             };
 
             String surNames[] = new String[] {
@@ -309,55 +311,3 @@ public class App {
         }
     }
 }
-
-/*
- * abstract class ClassDice {
- * abstract int rollHit();
- * abstract int rollAttack();
- * }
- * 
- * class WarriorDice extends ClassDice {
- * 
- * @Override
- * int rollHit() {
- * // TODO Auto-generated method stub
- * throw new UnsupportedOperationException("Unimplemented method 'rollHit'");
- * }
- * 
- * @Override
- * int rollAttack() {
- * // TODO Auto-generated method stub
- * throw new UnsupportedOperationException("Unimplemented method 'rollAttack'");
- * }
- * }
- * 
- * class ShamanTheifDice extends ClassDice {
- * 
- * @Override
- * int rollHit() {
- * // TODO Auto-generated method stub
- * throw new UnsupportedOperationException("Unimplemented method 'rollHit'");
- * }
- * 
- * @Override
- * int rollAttack() {
- * // TODO Auto-generated method stub
- * throw new UnsupportedOperationException("Unimplemented method 'rollAttack'");
- * }
- * }
- * 
- * class SageDice extends ClassDice {
- * 
- * @Override
- * int rollHit() {
- * // TODO Auto-generated method stub
- * throw new UnsupportedOperationException("Unimplemented method 'rollHit'");
- * }
- * 
- * @Override
- * int rollAttack() {
- * // TODO Auto-generated method stub
- * throw new UnsupportedOperationException("Unimplemented method 'rollAttack'");
- * }
- * }
- */
