@@ -4,7 +4,7 @@ Ideas
 - [x] Rank-based targetting
 - [x] Morale system
 - [x] Get rid of the allies and enemies arrays and replace them with a single battlefield array
-- [ ] Give the player a choice to continue or flee at the end of each round
+- [x] Give the player a choice to continue or flee at the end of each round
 - [ ] Different columns per battlefield per rank
 - [ ] Different dice per 'class'
 - [ ] Attack/hit stats

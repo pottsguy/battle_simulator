@@ -51,6 +51,16 @@ class CombatantCounts {
     int alliesActive;
 }
 
+class BattlefieldSort {
+    //sort by initiative
+    //sort by target priority
+}
+
+class AttackRoll {
+    //amount of damage dealt
+    //marks if a target has been incapacitated
+}
+
 public class App {
 
     // reads the battlefield and returns the number of enemies (total and current) and allies (current)
@@ -100,12 +110,19 @@ public class App {
             //this counts the number of active combatants each round and asks if the player wants to fight or flee.
             CombatantCounts count = countCombatants(battlefield);
             System.out.println("There are currently " + count.alliesActive + " allies and " + count.enemiesActive + " enemies active.");
-            System.out.println("Do you want to 1) keep fighting or 2) flee?");
-            if (scan.nextInt() == 1) {
-                System.out.println("You fight on.");
-            } else {
-                System.out.println("The Ally is fleeing.");
-                combatOngoing = false;
+            int decision = 0;
+            while (decision == 0) {
+                System.out.println("Do you want to 1) keep fighting or 2) flee?");
+                decision = scan.nextInt();
+                if (decision == 1) {
+                    System.out.println("You fight on.");
+                } else if (decision == 2) {
+                    System.out.println("The Ally is fleeing.");
+                    combatOngoing = false;
+                } else {
+                    System.out.println("Error, try again.");
+                    decision = 0;
+                }
             }
 
             //this is where initiative is rolled (d6, 1-3=enemies, 4-6=allies).
