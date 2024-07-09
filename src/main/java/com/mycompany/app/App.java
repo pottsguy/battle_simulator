@@ -6,6 +6,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.Collections;
 import java.util.Comparator;
 
@@ -44,12 +45,6 @@ class Combatant {
     }
 }
 
-//1. get combatant (team, name, rank, hits etc.) -> add combatant to battlefield;
-//2. run combat (battlefield) -> victor & changes to characters e.g. hits, equipment, death etc.;
-//      1. sort battlefield (battlefield) -> sorted battlefield;
-//      2. run attacks (sorted battlefield, battleOngoing, rng) -> hits & incapacitation etc.;
-//      3. possibly flee (moraleChecked, rng)
-
 class CombatantCounts {
     int enemiesActive;
     int enemiesTotal;
@@ -77,6 +72,7 @@ public class App {
 
     public static void main(String[] args) {
         Random rndm = new Random();
+        Scanner scan = new Scanner(System.in);
 
         //this is where the combatants are added to their teams.
         ArrayList<Combatant> battlefield = new ArrayList<Combatant>();
@@ -101,6 +97,17 @@ public class App {
             System.out.println("--- Round " + round + ". ---");
             round++;
 
+            //this counts the number of active combatants each round and asks if the player wants to fight or flee.
+            CombatantCounts count = countCombatants(battlefield);
+            System.out.println("There are currently " + count.alliesActive + " allies and " + count.enemiesActive + " enemies active.");
+            System.out.println("Do you want to 1) keep fighting or 2) flee?");
+            if (scan.nextInt() == 1) {
+                System.out.println("You fight on.");
+            } else {
+                System.out.println("The Ally is fleeing.");
+                combatOngoing = false;
+            }
+
             //this is where initiative is rolled (d6, 1-3=enemies, 4-6=allies).
             int initiativeRoll = rndm.nextInt(6)+1;
             Team first;
@@ -109,7 +116,9 @@ public class App {
             } else {
                 first = Team.Ally;
             }
-            System.out.println("Initiative roll: " + initiativeRoll + ", the " + first.toString() + " have the initiative.");
+            if (combatOngoing) {
+                System.out.println("Initiative roll: " + initiativeRoll + ", the " + first.toString() + " have the initiative.");
+            }
 
             //this sorts the combatants according to team, rank and initiative.
             Collections.sort (battlefield, (Combatant a, Combatant b) -> {
@@ -135,10 +144,6 @@ public class App {
                     return 0;
                 }
             });
-
-            //this counts the number of active combatants each round.
-            CombatantCounts count = countCombatants(battlefield);
-            System.out.println("There are currently " + count.alliesActive + " allies and " + count.enemiesActive + " enemies active.");
 
             //all potential targets are added to a targets list.
             for (int i=0; combatOngoing && i < battlefield.size(); i++) {
@@ -229,6 +234,7 @@ public class App {
                 }
             }
         }
+        scan.close();
     }
 
     public static void pregenerate(String[] args) throws ClassNotFoundException {
