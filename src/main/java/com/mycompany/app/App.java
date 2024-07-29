@@ -9,6 +9,7 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.InputMismatchException;
 
 enum Team {
     Ally, Enemy
@@ -51,14 +52,44 @@ class CombatantCounts {
     int alliesActive;
 }
 
-class BattlefieldSort {
-    //sort by initiative
-    //sort by target priority
-}
+// this prompts and reads a response from the player, needs a function to add options to multiple choice, outputs an int
+class MultipleChoiceQuestion {
+    private ArrayList<String> options;
 
-class AttackRoll {
-    //amount of damage dealt
-    //marks if a target has been incapacitated
+    public MultipleChoiceQuestion() {
+        this.options = new ArrayList<String>();
+    }
+
+    public int addOption(String description) {
+        options.add(description);
+        return options.size() - 1;
+    }
+
+    public int ask(Scanner scan) {
+        if (options.size()==0) {
+            throw new RuntimeException("Question asked with no options!");
+        }
+        int decision = 0;
+        while (decision == 0) {
+            System.out.println("What do you do?");
+            for (int i=0; i<options.size(); i++) {
+                System.out.println(i+1 + ") " + options.get(i));
+            }
+            try {
+                decision = scan.nextInt();
+            } catch (InputMismatchException ex) {
+                scan.next();
+                decision=0;
+            }
+            if (decision<1 || decision>options.size()) {
+                System.out.println("Not a valid option, try again.");
+                decision=0;
+            }
+        }
+        decision--; //decrement because input is 1-based while java is 0-based
+        System.out.println("You " + options.get(decision));
+        return decision;
+    }
 }
 
 public class App {
@@ -81,9 +112,31 @@ public class App {
     }
 
     public static void main(String[] args) {
-        Random rndm = new Random();
         Scanner scan = new Scanner(System.in);
 
+        MultipleChoiceQuestion q = new MultipleChoiceQuestion();
+        // q.addOption("Bumming");
+        // q.addOption("Hat");
+        q.ask(scan);
+
+        MultipleChoiceQuestion qu = new MultipleChoiceQuestion();
+        int hairspray = qu.addOption("Hairspray");
+        int hairgel = qu.addOption("Hairgel");
+        int pasty = qu.addOption("Pasty");
+        int javelin = qu.addOption("Javelin throw");
+        int outcome = qu.ask(scan);
+        if (outcome == pasty) {
+            System.out.println("you ate the magic pasty");
+        } else {
+            System.out.println("you did something boring");
+        }
+
+        return;
+    }
+
+    public static void oldMain(String[] args) {
+        Random rndm = new Random();
+        Scanner scan = new Scanner(System.in);
         //this is where the combatants are added to their teams.
         ArrayList<Combatant> battlefield = new ArrayList<Combatant>();
         battlefield.add(new Combatant(Team.Ally, "Knight 1", Rank.Vanguard));
@@ -110,6 +163,7 @@ public class App {
             //this counts the number of active combatants each round and asks if the player wants to fight or flee.
             CombatantCounts count = countCombatants(battlefield);
             System.out.println("There are currently " + count.alliesActive + " allies and " + count.enemiesActive + " enemies active.");
+
             int decision = 0;
             while (decision == 0) {
                 System.out.println("Do you want to 1) keep fighting or 2) flee?");
