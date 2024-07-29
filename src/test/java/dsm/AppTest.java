@@ -1,4 +1,4 @@
-package com.mycompany.app;
+package dsm;
 
 import static org.junit.Assert.assertTrue;
 
