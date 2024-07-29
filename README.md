@@ -5,6 +5,8 @@ Ideas
 - [x] Morale system
 - [x] Get rid of the allies and enemies arrays and replace them with a single battlefield array
 - [x] Give the player a choice to continue or flee at the end of each round
+- [ ] Create a useful battle class
+- [ ] Add hex crawling procedure
 - [ ] Different columns per battlefield per rank
 - [ ] Different dice per 'class'
 - [ ] Attack/hit stats

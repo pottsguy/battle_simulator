@@ -17,6 +17,7 @@ class MultipleChoiceQuestion {
         return options.size() - 1;
     }
 
+    //ask() automatically prints option indexes; ask the question and return the index of the option chosen
     public int ask(Scanner scan) {
         if (options.size()==0) {
             throw new RuntimeException("Question asked with no options!");

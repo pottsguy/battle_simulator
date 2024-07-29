@@ -11,12 +11,12 @@ class HexMap {
         this.movable = new ArrayList<>();
     }
 
-    public Hex hexQuery(int queryE, int querySE) {
+    public Hex hexAt(int east, int southEast) {
         for (int i=0; i<this.hex.length; i++) {
-            if (this.hex[i].east == queryE && this.hex[i].southeast == querySE) {
+            if (this.hex[i].east == east && this.hex[i].southEast == southEast) {
                 return hex[i];
             }
         }
-        throw new RuntimeException("There is no hex at " + queryE + ", " + querySE);
+        throw new RuntimeException("There is no hex at " + east + ", " + southEast);
     }
 }

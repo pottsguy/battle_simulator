@@ -3,14 +3,14 @@ package dsm;
 class Hex {
     int id;
     int east;
-    int southeast;
+    int southEast;
     Terrain terrain;
     String landmark;
 
     Hex(int id, int east, int southeast, Terrain terrain, String landmark) {
         this.id = id;
         this.east = east;
-        this.southeast = southeast;
+        this.southEast = southeast;
         this.terrain = terrain;
         this.landmark = landmark;
     }
