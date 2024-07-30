@@ -7,11 +7,11 @@ public class Main {
 
     public static void main(String args[]) {
 
-        Random rndm = new Random();
+        Dice dice = new Dice();
         Scanner scan = new Scanner(System.in);
 
         System.out.println("Welcome, daring mercenary, to the subterranean realm!");
-        Campaign myCampaign = new Campaign(rndm, scan);
+        Campaign myCampaign = new Campaign(dice, scan);
         myCampaign.run();
     }
 }

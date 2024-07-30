@@ -1,25 +1,23 @@
 package dsm;
 
-import java.util.Random;
-
 public class WeatherGenerator {
 
-    Random rndm;
+    Dice dice;
 
-    WeatherGenerator(Random rndm) {
-        this.rndm = rndm;
+    WeatherGenerator(Dice dice) {
+        this.dice = dice;
     }
 
     public Weather generate() {
 
-        int firstRoll = rndm.nextInt(6);
-        int secondRoll = rndm.nextInt(6);
+        int firstRoll = dice.d6();
+        int secondRoll = dice.d6();
 
         int lowerRoll = Math.min(firstRoll, secondRoll);
 
-        if(lowerRoll < 3) {
+        if(lowerRoll < 4) {
             return Weather.Clear;
-        } else if(lowerRoll < 5) {
+        } else if(lowerRoll < 6) {
             return Weather.Rainy;
         } else {
             return Weather.Stormy;

@@ -72,7 +72,7 @@ public class Campaign {
         return overworld;
     }
 
-    Random rndm;
+    Dice dice;
     Scanner scan;
     int day;
     WeatherGenerator weatherGen;
@@ -81,12 +81,11 @@ public class Campaign {
     HexMap world;
     Movable partyMovable;
 
-    Campaign(Random rndm, Scanner scan) {
-        this.rndm = rndm;
+    Campaign(Dice dice, Scanner scan) {
+        this.dice = dice;
         this.scan = scan;
         this.day = 1;
-        this.weatherGen = new WeatherGenerator(rndm);
-        this.weather = weatherGen.generate();
+        this.weatherGen = new WeatherGenerator(dice);
         this.time = TimeOfDay.Morning;
         this.world = makeWorldMap();
         this.partyMovable = new Movable("Party", 0, 5);
@@ -159,7 +158,7 @@ public class Campaign {
             throw new RuntimeException("weather/terrain combo not supported");
         }
 
-        int navigationRoll = rndm.nextInt(6)+1;
+        int navigationRoll = dice.d6();
         if(choice == nw && navigationRoll >= navigationChances) {
             partyMovable.moveNW();
         } else if(choice == ne && navigationRoll >= navigationChances) {
@@ -174,14 +173,14 @@ public class Campaign {
             partyMovable.moveW();
         } else {
             System.out.println("You got lost.");
-            partyMovable.moveRandom(rndm);
+            partyMovable.moveRandom(dice);
         }
 
         tellTerrain();
     }
 
     private void randomEncounter() {
-        int encounterRoll=rndm.nextInt(6)+1;
+        int encounterRoll=dice.d6();
         int encounterChances=1;
         if(encounterRoll<=encounterChances) {
             System.out.println("A random encounter ensues.");
@@ -231,12 +230,12 @@ public class Campaign {
             throw new RuntimeException("weather/terrain combo not supported");
         }
 
-        int forageRoll=rndm.nextInt(6)+1;
+        int forageRoll=dice.d6();
         if(forageRoll < forageChances) {
             System.out.println("You found a mushrooms.");
         }
 
-        int fireRoll=rndm.nextInt(6)+1;
+        int fireRoll=dice.d6();
         if(fireRoll < fireChances) {
             System.out.println("You lit a fire.");
         } else {

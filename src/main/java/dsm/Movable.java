@@ -36,8 +36,18 @@ class Movable {
     public void moveW() {
         this.east --;
     }
-    public void moveRandom(Random rndm) {
-        this.east = east + rndm.nextInt(2)-1;
-        this.southeast = southeast + rndm.nextInt(2)-1;
+    public void moveRandom(Dice dice) {
+        int randomDirection[][] = {
+            {1, -1}, //northeast
+            {1,  0}, //east
+            {0,  1}, //southeast
+            {-1, 1}, //southwest
+            {-1, 0}, //west
+            {0, -1}, //northwest
+        };
+        int directionRoll = dice.d6();
+        int row[] = randomDirection[directionRoll-1];
+        east = east+row[0];
+        southeast = southeast+row[1];
     }
 }
