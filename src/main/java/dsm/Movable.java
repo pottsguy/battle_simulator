@@ -1,7 +1,9 @@
 package dsm;
 
+import java.util.Random;
+
 class Movable {
-    String name;
+    private String name;
     int east;
     int southeast;
 
@@ -11,6 +13,9 @@ class Movable {
         this.southeast = southeast;
     }
 
+    public String getName() {
+        return name;
+    }
     public void moveNW() {
         this.southeast --;
     }
@@ -30,5 +35,9 @@ class Movable {
     }
     public void moveW() {
         this.east --;
+    }
+    public void moveRandom(Random rndm) {
+        this.east = east + rndm.nextInt(2)-1;
+        this.southeast = southeast + rndm.nextInt(2)-1;
     }
 }

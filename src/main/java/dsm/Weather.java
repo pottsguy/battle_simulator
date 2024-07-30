@@ -1,7 +1,7 @@
 package dsm;
 
 enum Weather {
-    Pleasant,
-    Rain,
-    Storm,
+    Clear,
+    Rainy,
+    Stormy,
 }

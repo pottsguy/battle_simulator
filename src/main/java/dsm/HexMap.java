@@ -19,4 +19,8 @@ class HexMap {
         }
         throw new RuntimeException("There is no hex at " + east + ", " + southEast);
     }
+
+    public Hex hexAt(Movable m) {
+        return hexAt(m.east, m.southeast);
+    }
 }

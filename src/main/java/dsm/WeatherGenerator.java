@@ -18,11 +18,11 @@ public class WeatherGenerator {
         int lowerRoll = Math.min(firstRoll, secondRoll);
 
         if(lowerRoll < 3) {
-            return Weather.Pleasant;
+            return Weather.Clear;
         } else if(lowerRoll < 5) {
-            return Weather.Rain;
+            return Weather.Rainy;
         } else {
-            return Weather.Storm;
+            return Weather.Stormy;
         }
     }
 }
