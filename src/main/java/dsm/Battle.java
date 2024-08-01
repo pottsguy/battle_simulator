@@ -99,7 +99,7 @@ public class Battle {
                 ArrayList<Combatant> targets = new ArrayList<Combatant>();
                 for (int n=0; n<battlefield.size(); n++) {
                     Combatant candidate = battlefield.get(n);
-                    if (candidate.incapacitated == false && candidate.team != attacker.team) {
+                    if (!candidate.incapacitated && candidate.team != attacker.team) {
                         targets.add(candidate);
                     }
                 }
@@ -138,7 +138,7 @@ public class Battle {
                 assert target.team != attacker.team;
 
                 //this is where the attack roll occurs.
-                if (attacker.incapacitated == false) {
+                if (!attacker.incapacitated) {
                     int attackRoll = dice.d20() + battlefield.get(i).attack;
                     if (attackRoll < 10) {
                         System.out.println(attacker.name + " misses " + target.name + ", leaving them with " + target.hitsCurrent + " hits.");
