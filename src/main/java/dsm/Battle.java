@@ -1,7 +1,5 @@
 package dsm;
 
-// mvn assembly:assembly -DdescriptorId=jar-with-dependencies && java -cp ./target/db_test-1.0-SNAPSHOT-jar-with-dependencies.jar com.mycompany.app.App
-
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
@@ -26,23 +24,8 @@ public class Battle {
         return myCC;
     }
 
-    public static void battleMain(String[] args) {
-        Random rndm = new Random();
-        Scanner scan = new Scanner(System.in);
-        //this is where the combatants are added to their teams.
-        ArrayList<Combatant> battlefield = new ArrayList<Combatant>();
-        battlefield.add(new Combatant(Team.Ally, "Knight 1", Rank.Vanguard));
-        battlefield.add(new Combatant(Team.Ally, "Knight 2", Rank.Vanguard));
-        battlefield.add(new Combatant(Team.Ally, "Spearman 1", Rank.Rear));
-        battlefield.add(new Combatant(Team.Ally, "Spearman 2", Rank.Rear));
-        battlefield.add(new Combatant(Team.Ally, "Archer 1", Rank.Artillery));
-        battlefield.add(new Combatant(Team.Ally, "Archer 2", Rank.Artillery));
-        battlefield.add(new Combatant(Team.Enemy, "Trorc 1", Rank.Vanguard));
-        battlefield.add(new Combatant(Team.Enemy, "Trorc 2", Rank.Vanguard));
-        battlefield.add(new Combatant(Team.Enemy, "Trobgoblin 1", Rank.Rear));
-        battlefield.add(new Combatant(Team.Enemy, "Trobgoblin 2", Rank.Rear));
-        battlefield.add(new Combatant(Team.Enemy, "Trobold 1", Rank.Artillery));
-        battlefield.add(new Combatant(Team.Enemy, "Trobold 2", Rank.Artillery));
+    public static void battleMain(Dice dice, Scanner scan, ArrayList<Combatant> battlefield) {
+
 
         //this is the start of the combat cycle.
         boolean combatOngoing = true;
@@ -51,6 +34,8 @@ public class Battle {
         while (combatOngoing) {
             System.out.println("--- Round " + round + ". ---");
             round++;
+
+            System.out.println();
 
             //this counts the number of active combatants each round and asks if the player wants to fight or flee.
             CombatantCounts count = countCombatants(battlefield);
@@ -72,7 +57,7 @@ public class Battle {
             }
 
             //this is where initiative is rolled (d6, 1-3=enemies, 4-6=allies).
-            int initiativeRoll = rndm.nextInt(6)+1;
+            int initiativeRoll = dice.d6();
             Team first;
             if (initiativeRoll<4) {
                 first = Team.Enemy;
@@ -154,7 +139,7 @@ public class Battle {
 
                 //this is where the attack roll occurs.
                 if (attacker.incapacitated == false) {
-                    int attackRoll = rndm.nextInt(20) + battlefield.get(i).attack;
+                    int attackRoll = dice.d20() + battlefield.get(i).attack;
                     if (attackRoll < 10) {
                         System.out.println(attacker.name + " misses " + target.name + ", leaving them with " + target.hitsCurrent + " hits.");
                     } else if (attackRoll < 15) {
@@ -189,7 +174,7 @@ public class Battle {
             //checks morale if the enemy is reduced to half numbers.
             if (!moraleChecked && combatOngoing && count.enemiesActive<count.enemiesTotal/2) {
                 moraleChecked = true;
-                if (rndm.nextInt(6)<4) {
+                if (dice.d6()<4) {
                     System.out.println("The Enemy is fleeing.");
                     combatOngoing = false;
                 } else {
@@ -197,6 +182,5 @@ public class Battle {
                 }
             }
         }
-        scan.close();
     }
 }

@@ -1,5 +1,6 @@
 package dsm;
 
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -117,13 +118,13 @@ public class Campaign {
 
     void hexTravel() {
         MultipleChoiceQuestion decision = new MultipleChoiceQuestion();
-        int nw = decision.addOption("move northwest.");
-        int ne = decision.addOption("move northeast.");
-        int e = decision.addOption("move east.");
-        int se = decision.addOption("move southeast.");
-        int sw = decision.addOption("move southwest.");
-        int w = decision.addOption("move west.");
-        int ss = decision.addOption("stay still.");
+        int nw = decision.addOption("Move northwest into " + world.hexAt(partyMovable.east, partyMovable.southeast-1).terrain.toString().toLowerCase() + ".");
+        int ne = decision.addOption("Move northeast into " + world.hexAt(partyMovable.east+1, partyMovable.southeast-1).terrain.toString().toLowerCase() + ".");
+        int e = decision.addOption("Move east into " + world.hexAt(partyMovable.east+1, partyMovable.southeast).terrain.toString().toLowerCase() + ".");
+        int se = decision.addOption("Move southeast into " + world.hexAt(partyMovable.east, partyMovable.southeast+1).terrain.toString().toLowerCase() + ".");
+        int sw = decision.addOption("Move southwest into " + world.hexAt(partyMovable.east-1, partyMovable.southeast+1).terrain.toString().toLowerCase() + ".");
+        int w = decision.addOption("Move west into " + world.hexAt(partyMovable.east-1, partyMovable.southeast).terrain.toString().toLowerCase() + ".");
+        int ss = decision.addOption("Stay still in " + world.hexAt(partyMovable).terrain.toString().toLowerCase() + ".");
         int choice = decision.ask(scan);
 
         int navigationChances;
@@ -133,21 +134,21 @@ public class Campaign {
         } else if(world.hexAt(partyMovable).terrain == Terrain.Hills && weather == Weather.Clear) {
             navigationChances = 5;
         } else if(world.hexAt(partyMovable).terrain == Terrain.Hills && weather == Weather.Rainy) {
-            navigationChances = 4;
+            navigationChances = 5;
         } else if(world.hexAt(partyMovable).terrain == Terrain.Hills && weather == Weather.Stormy) {
-            navigationChances = 3;
+            navigationChances = 5;
         } else if(world.hexAt(partyMovable).terrain == Terrain.Mountains && weather == Weather.Clear) {
             navigationChances = 4;
         } else if(world.hexAt(partyMovable).terrain == Terrain.Mountains && weather == Weather.Rainy) {
-            navigationChances = 3;
+            navigationChances = 4;
         } else if(world.hexAt(partyMovable).terrain == Terrain.Mountains && weather == Weather.Stormy) {
-            navigationChances = 2;
+            navigationChances = 4;
         } else if(world.hexAt(partyMovable).terrain == Terrain.Swamp && weather == Weather.Clear) {
-            navigationChances = 5;
+            navigationChances = 4;
         } else if(world.hexAt(partyMovable).terrain == Terrain.Swamp && weather == Weather.Rainy) {
-            navigationChances = 3;
+            navigationChances = 4;
         } else if(world.hexAt(partyMovable).terrain == Terrain.Swamp && weather == Weather.Stormy) {
-            navigationChances = 2;
+            navigationChances = 4;
         } else if(world.hexAt(partyMovable).terrain == Terrain.Woods && weather == Weather.Clear) {
             navigationChances = 3;
         } else if(world.hexAt(partyMovable).terrain == Terrain.Woods && weather == Weather.Rainy) {
@@ -159,17 +160,17 @@ public class Campaign {
         }
 
         int navigationRoll = dice.d6();
-        if(choice == nw && navigationRoll >= navigationChances) {
+        if(choice == nw && navigationRoll <= navigationChances) {
             partyMovable.moveNW();
-        } else if(choice == ne && navigationRoll >= navigationChances) {
+        } else if(choice == ne && navigationRoll <= navigationChances) {
             partyMovable.moveNE();
-        } else if(choice == e && navigationRoll >= navigationChances) {
+        } else if(choice == e && navigationRoll <= navigationChances) {
             partyMovable.moveE();
-        } else if (choice == se && navigationRoll >= navigationChances) {
+        } else if (choice == se && navigationRoll <= navigationChances) {
             partyMovable.moveSE();
-        } else if (choice == sw && navigationRoll >= navigationChances) {
+        } else if (choice == sw && navigationRoll <= navigationChances) {
             partyMovable.moveSW();
-        } else if (choice == w && navigationRoll >= navigationChances) {
+        } else if (choice == w && navigationRoll <= navigationChances) {
             partyMovable.moveW();
         } else {
             System.out.println("You got lost.");
@@ -184,6 +185,20 @@ public class Campaign {
         int encounterChances=1;
         if(encounterRoll<=encounterChances) {
             System.out.println("A random encounter ensues.");
+            ArrayList<Combatant> battlefield = new ArrayList<>();
+            battlefield.add(new Combatant(Team.Ally, "Knight 1", Rank.Vanguard));
+            battlefield.add(new Combatant(Team.Ally, "Knight 2", Rank.Vanguard));
+            battlefield.add(new Combatant(Team.Ally, "Spearman 1", Rank.Rear));
+            battlefield.add(new Combatant(Team.Ally, "Spearman 2", Rank.Rear));
+            battlefield.add(new Combatant(Team.Ally, "Archer 1", Rank.Artillery));
+            battlefield.add(new Combatant(Team.Ally, "Archer 2", Rank.Artillery));
+            battlefield.add(new Combatant(Team.Enemy, "Trorc 1", Rank.Vanguard));
+            battlefield.add(new Combatant(Team.Enemy, "Trorc 2", Rank.Vanguard));
+            battlefield.add(new Combatant(Team.Enemy, "Trobgoblin 1", Rank.Rear));
+            battlefield.add(new Combatant(Team.Enemy, "Trobgoblin 2", Rank.Rear));
+            battlefield.add(new Combatant(Team.Enemy, "Trobold 1", Rank.Artillery));
+            battlefield.add(new Combatant(Team.Enemy, "Trobold 2", Rank.Artillery));
+            Battle.battleMain(dice, scan, battlefield);
         }
     }
 
@@ -244,7 +259,7 @@ public class Campaign {
     }
 
     private void tellDay() {
-        System.out.println("It is " + time.toString().toLowerCase() + " of day " + day + ", the weather is " + weather.toString().toLowerCase() + ".");
+        System.out.println("It is " + time.toString().toLowerCase() + " of day " + day + ", the weather is " + weather.toString().toLowerCase() + ", and you are in the " + world.hexAt(partyMovable).terrain.toString().toLowerCase() + ".");
     }
     
     private void wildernessProcedure() {
