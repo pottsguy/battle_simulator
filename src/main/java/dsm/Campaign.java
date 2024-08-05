@@ -1,7 +1,6 @@
 package dsm;
 
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.Scanner;
 
 public class Campaign {
@@ -80,7 +79,7 @@ public class Campaign {
     Weather weather;
     TimeOfDay time;
     HexMap world;
-    Movable partyMovable;
+    Coordinate partyCoordinate;
 
     Campaign(Dice dice, Scanner scan) {
         this.dice = dice;
@@ -89,8 +88,8 @@ public class Campaign {
         this.weatherGen = new WeatherGenerator(dice);
         this.time = TimeOfDay.Morning;
         this.world = makeWorldMap();
-        this.partyMovable = new Movable("Party", 0, 5);
-        this.world.movable.add(partyMovable);
+        this.partyCoordinate = new Coordinate(0, 5);
+        this.world.coordinate.add(partyCoordinate);
     }
 
     public void run() {
@@ -112,71 +111,57 @@ public class Campaign {
     }
 
     void tellTerrain() {
-        Hex currentHex = world.hexAt(partyMovable.east, partyMovable.southeast);
+        Hex currentHex = world.hexAt(partyCoordinate.east, partyCoordinate.southeast);
         System.out.println("This area consists of " + currentHex.terrain.toString().toLowerCase() + ".");
     }
 
     void hexTravel() {
-        MultipleChoiceQuestion decision = new MultipleChoiceQuestion();
-        int nw = decision.addOption("Move northwest into " + world.hexAt(partyMovable.east, partyMovable.southeast-1).terrain.toString().toLowerCase() + ".");
-        int ne = decision.addOption("Move northeast into " + world.hexAt(partyMovable.east+1, partyMovable.southeast-1).terrain.toString().toLowerCase() + ".");
-        int e = decision.addOption("Move east into " + world.hexAt(partyMovable.east+1, partyMovable.southeast).terrain.toString().toLowerCase() + ".");
-        int se = decision.addOption("Move southeast into " + world.hexAt(partyMovable.east, partyMovable.southeast+1).terrain.toString().toLowerCase() + ".");
-        int sw = decision.addOption("Move southwest into " + world.hexAt(partyMovable.east-1, partyMovable.southeast+1).terrain.toString().toLowerCase() + ".");
-        int w = decision.addOption("Move west into " + world.hexAt(partyMovable.east-1, partyMovable.southeast).terrain.toString().toLowerCase() + ".");
-        int ss = decision.addOption("Stay still in " + world.hexAt(partyMovable).terrain.toString().toLowerCase() + ".");
-        int choice = decision.ask(scan);
+        MultipleChoiceQuestion directionQuestion = new MultipleChoiceQuestion();
+        for(int i=0; i<Coordinate.directionNames.length; i++) {
+            directionQuestion.addOption("Move " + Coordinate.directionNames[i] + " into " + world.hexAt(partyCoordinate.plus(Coordinate.DIRECTIONS[i])).terrain + ".");
+        };
+        int ss = directionQuestion.addOption("Stay still in " + world.hexAt(partyCoordinate).terrain.toString().toLowerCase() + ".");
+        int directionChoice = directionQuestion.ask(scan);
 
         int navigationChances;
-        if (choice == ss) {
+        if (directionChoice == ss) {
             tellTerrain();
             return;
-        } else if(world.hexAt(partyMovable).terrain == Terrain.Hills && weather == Weather.Clear) {
+        } else if(world.hexAt(partyCoordinate).terrain == Terrain.Hills && weather == Weather.Clear) {
             navigationChances = 5;
-        } else if(world.hexAt(partyMovable).terrain == Terrain.Hills && weather == Weather.Rainy) {
+        } else if(world.hexAt(partyCoordinate).terrain == Terrain.Hills && weather == Weather.Rainy) {
             navigationChances = 5;
-        } else if(world.hexAt(partyMovable).terrain == Terrain.Hills && weather == Weather.Stormy) {
+        } else if(world.hexAt(partyCoordinate).terrain == Terrain.Hills && weather == Weather.Stormy) {
             navigationChances = 5;
-        } else if(world.hexAt(partyMovable).terrain == Terrain.Mountains && weather == Weather.Clear) {
+        } else if(world.hexAt(partyCoordinate).terrain == Terrain.Mountains && weather == Weather.Clear) {
             navigationChances = 4;
-        } else if(world.hexAt(partyMovable).terrain == Terrain.Mountains && weather == Weather.Rainy) {
+        } else if(world.hexAt(partyCoordinate).terrain == Terrain.Mountains && weather == Weather.Rainy) {
             navigationChances = 4;
-        } else if(world.hexAt(partyMovable).terrain == Terrain.Mountains && weather == Weather.Stormy) {
+        } else if(world.hexAt(partyCoordinate).terrain == Terrain.Mountains && weather == Weather.Stormy) {
             navigationChances = 4;
-        } else if(world.hexAt(partyMovable).terrain == Terrain.Swamp && weather == Weather.Clear) {
+        } else if(world.hexAt(partyCoordinate).terrain == Terrain.Swamp && weather == Weather.Clear) {
             navigationChances = 4;
-        } else if(world.hexAt(partyMovable).terrain == Terrain.Swamp && weather == Weather.Rainy) {
+        } else if(world.hexAt(partyCoordinate).terrain == Terrain.Swamp && weather == Weather.Rainy) {
             navigationChances = 4;
-        } else if(world.hexAt(partyMovable).terrain == Terrain.Swamp && weather == Weather.Stormy) {
+        } else if(world.hexAt(partyCoordinate).terrain == Terrain.Swamp && weather == Weather.Stormy) {
             navigationChances = 4;
-        } else if(world.hexAt(partyMovable).terrain == Terrain.Woods && weather == Weather.Clear) {
+        } else if(world.hexAt(partyCoordinate).terrain == Terrain.Woods && weather == Weather.Clear) {
             navigationChances = 3;
-        } else if(world.hexAt(partyMovable).terrain == Terrain.Woods && weather == Weather.Rainy) {
+        } else if(world.hexAt(partyCoordinate).terrain == Terrain.Woods && weather == Weather.Rainy) {
             navigationChances = 3;
-        } else if(world.hexAt(partyMovable).terrain == Terrain.Woods && weather == Weather.Stormy) {
+        } else if(world.hexAt(partyCoordinate).terrain == Terrain.Woods && weather == Weather.Stormy) {
             navigationChances = 3;
         } else {
             throw new RuntimeException("weather/terrain combo not supported");
         }
 
         int navigationRoll = dice.d6();
-        if(choice == nw && navigationRoll <= navigationChances) {
-            partyMovable.moveNW();
-        } else if(choice == ne && navigationRoll <= navigationChances) {
-            partyMovable.moveNE();
-        } else if(choice == e && navigationRoll <= navigationChances) {
-            partyMovable.moveE();
-        } else if (choice == se && navigationRoll <= navigationChances) {
-            partyMovable.moveSE();
-        } else if (choice == sw && navigationRoll <= navigationChances) {
-            partyMovable.moveSW();
-        } else if (choice == w && navigationRoll <= navigationChances) {
-            partyMovable.moveW();
+        if(navigationRoll <= navigationChances) {
+            partyCoordinate.move(Coordinate.DIRECTIONS[directionChoice]);
         } else {
             System.out.println("You got lost.");
-            partyMovable.moveRandom(dice);
+            partyCoordinate.move(Coordinate.DIRECTIONS[dice.d6()]);
         }
-
         tellTerrain();
     }
 
@@ -205,40 +190,40 @@ public class Campaign {
     private void survival() {
         int forageChances;
         int fireChances;
-        if (world.hexAt(partyMovable).terrain == Terrain.Hills && weather == Weather.Clear) {
+        if (world.hexAt(partyCoordinate).terrain == Terrain.Hills && weather == Weather.Clear) {
             forageChances = 2;
             fireChances = 6;
-        } else if (world.hexAt(partyMovable).terrain == Terrain.Hills && weather == Weather.Rainy) {
+        } else if (world.hexAt(partyCoordinate).terrain == Terrain.Hills && weather == Weather.Rainy) {
             forageChances = 1;
             fireChances = 3;
-        } else if (world.hexAt(partyMovable).terrain == Terrain.Hills && weather == Weather.Stormy) {
+        } else if (world.hexAt(partyCoordinate).terrain == Terrain.Hills && weather == Weather.Stormy) {
             forageChances = 0;
             fireChances = 0;
-        } else if (world.hexAt(partyMovable).terrain == Terrain.Mountains && weather == Weather.Clear) {
+        } else if (world.hexAt(partyCoordinate).terrain == Terrain.Mountains && weather == Weather.Clear) {
             forageChances = 1;
             fireChances = 5;
-        } else if (world.hexAt(partyMovable).terrain == Terrain.Mountains && weather == Weather.Rainy) {
+        } else if (world.hexAt(partyCoordinate).terrain == Terrain.Mountains && weather == Weather.Rainy) {
             forageChances = 0;
             fireChances = 2;
-        } else if (world.hexAt(partyMovable).terrain == Terrain.Mountains && weather == Weather.Stormy) {
+        } else if (world.hexAt(partyCoordinate).terrain == Terrain.Mountains && weather == Weather.Stormy) {
             forageChances = 0;
             fireChances = 0;
-        } else if (world.hexAt(partyMovable).terrain == Terrain.Swamp && weather == Weather.Clear) {
+        } else if (world.hexAt(partyCoordinate).terrain == Terrain.Swamp && weather == Weather.Clear) {
             forageChances = 3;
             fireChances = 4;
-        } else if (world.hexAt(partyMovable).terrain == Terrain.Swamp && weather == Weather.Rainy) {
+        } else if (world.hexAt(partyCoordinate).terrain == Terrain.Swamp && weather == Weather.Rainy) {
             forageChances = 2;
             fireChances = 1;
-        } else if (world.hexAt(partyMovable).terrain == Terrain.Swamp && weather == Weather.Stormy) {
+        } else if (world.hexAt(partyCoordinate).terrain == Terrain.Swamp && weather == Weather.Stormy) {
             forageChances = 1;
             fireChances = 0;
-        } else if (world.hexAt(partyMovable).terrain == Terrain.Woods && weather == Weather.Clear) {
+        } else if (world.hexAt(partyCoordinate).terrain == Terrain.Woods && weather == Weather.Clear) {
             forageChances = 3;
             fireChances = 6;
-        } else if (world.hexAt(partyMovable).terrain == Terrain.Woods && weather == Weather.Rainy) {
+        } else if (world.hexAt(partyCoordinate).terrain == Terrain.Woods && weather == Weather.Rainy) {
             forageChances = 4;
             fireChances = 4;
-        } else if (world.hexAt(partyMovable).terrain == Terrain.Woods && weather == Weather.Stormy) {
+        } else if (world.hexAt(partyCoordinate).terrain == Terrain.Woods && weather == Weather.Stormy) {
             forageChances = 3;
             fireChances = 2;
         } else {
@@ -259,7 +244,7 @@ public class Campaign {
     }
 
     private void tellDay() {
-        System.out.println("It is " + time.toString().toLowerCase() + " of day " + day + ", the weather is " + weather.toString().toLowerCase() + ", and you are in the " + world.hexAt(partyMovable).terrain.toString().toLowerCase() + ".");
+        System.out.println("It is " + time.toString().toLowerCase() + " of day " + day + ", the weather is " + weather.toString().toLowerCase() + ", and you are in the " + world.hexAt(partyCoordinate).terrain.toString().toLowerCase() + ".");
     }
     
     private void wildernessProcedure() {
