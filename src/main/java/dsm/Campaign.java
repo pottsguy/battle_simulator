@@ -116,32 +116,16 @@ public class Campaign {
         if (directionChoice == ss) {
             tellTerrain();
             return;
-        } else if(world.hexAt(partyCoordinate).terrain == Terrain.Hills && weather == Weather.Clear) {
+        } else if(world.hexAt(partyCoordinate).terrain == Terrain.Hills) {
             navigationChances = 5;
-        } else if(world.hexAt(partyCoordinate).terrain == Terrain.Hills && weather == Weather.Rainy) {
-            navigationChances = 5;
-        } else if(world.hexAt(partyCoordinate).terrain == Terrain.Hills && weather == Weather.Stormy) {
-            navigationChances = 5;
-        } else if(world.hexAt(partyCoordinate).terrain == Terrain.Mountains && weather == Weather.Clear) {
+        } else if(world.hexAt(partyCoordinate).terrain == Terrain.Mountains) {
             navigationChances = 4;
-        } else if(world.hexAt(partyCoordinate).terrain == Terrain.Mountains && weather == Weather.Rainy) {
+        } else if(world.hexAt(partyCoordinate).terrain == Terrain.Swamp) {
             navigationChances = 4;
-        } else if(world.hexAt(partyCoordinate).terrain == Terrain.Mountains && weather == Weather.Stormy) {
-            navigationChances = 4;
-        } else if(world.hexAt(partyCoordinate).terrain == Terrain.Swamp && weather == Weather.Clear) {
-            navigationChances = 4;
-        } else if(world.hexAt(partyCoordinate).terrain == Terrain.Swamp && weather == Weather.Rainy) {
-            navigationChances = 4;
-        } else if(world.hexAt(partyCoordinate).terrain == Terrain.Swamp && weather == Weather.Stormy) {
-            navigationChances = 4;
-        } else if(world.hexAt(partyCoordinate).terrain == Terrain.Woods && weather == Weather.Clear) {
-            navigationChances = 3;
-        } else if(world.hexAt(partyCoordinate).terrain == Terrain.Woods && weather == Weather.Rainy) {
-            navigationChances = 3;
-        } else if(world.hexAt(partyCoordinate).terrain == Terrain.Woods && weather == Weather.Stormy) {
+        } else if(world.hexAt(partyCoordinate).terrain == Terrain.Woods) {
             navigationChances = 3;
         } else {
-            throw new RuntimeException("weather/terrain combo not supported");
+            throw new RuntimeException("terrain not supported");
         }
 
         int navigationRoll = dice.d6();
