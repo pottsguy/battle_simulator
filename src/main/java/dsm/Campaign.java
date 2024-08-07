@@ -92,30 +92,19 @@ public class Campaign {
         this.world.coordinate.add(partyCoordinate);
     }
 
-    public void run() {
-        while(true) {
-            wildernessProcedure();
-
-            //call character generation procedure
-        
-            //call town procedure
-
-            //call hex crawl procedure
-
-            //call dungeon exploration procedure
-
-            //call encounter procedure
-
-            //call combat procedure
-        }
-    }
-
     void tellTerrain() {
         Hex currentHex = world.hexAt(partyCoordinate.east, partyCoordinate.southeast);
-        System.out.println("This area consists of " + currentHex.terrain.toString().toLowerCase() + ".");
+        System.out.print("This area consists of " + currentHex.terrain.toString().toLowerCase());
+        if(currentHex.landmark != null) {
+            System.out.print(", there is a " + currentHex.landmark + " in this area.");
+        } else {
+            System.out.print(".");
+        };
+        System.out.print("\n");
     }
 
     void hexTravel() {
+        tellTerrain();
         MultipleChoiceQuestion directionQuestion = new MultipleChoiceQuestion();
         for(int i=0; i<Coordinate.directionNames.length; i++) {
             directionQuestion.addOption("Move " + Coordinate.directionNames[i] + " into " + world.hexAt(partyCoordinate.plus(Coordinate.DIRECTIONS[i])).terrain + ".");
@@ -162,7 +151,22 @@ public class Campaign {
             System.out.println("You got lost.");
             partyCoordinate.move(Coordinate.DIRECTIONS[dice.d6()]);
         }
-        tellTerrain();
+    }
+
+    public void run() {
+        while(true) {
+            //call character generation procedure
+
+            //call town procedure
+
+            wildernessProcedure();
+
+            //call dungeon exploration procedure
+
+            //call encounter procedure
+
+            //call combat procedure
+        }
     }
 
     private void randomEncounter() {
@@ -244,7 +248,7 @@ public class Campaign {
     }
 
     private void tellDay() {
-        System.out.println("It is " + time.toString().toLowerCase() + " of day " + day + ", the weather is " + weather.toString().toLowerCase() + ", and you are in the " + world.hexAt(partyCoordinate).terrain.toString().toLowerCase() + ".");
+        System.out.println("It is " + time.toString().toLowerCase() + " of day " + day + ", the weather is " + weather.toString().toLowerCase() + ".");
     }
     
     private void wildernessProcedure() {
