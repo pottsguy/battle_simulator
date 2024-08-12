@@ -5,8 +5,12 @@ Ideas
 - [x] Morale system
 - [x] Get rid of the allies and enemies arrays and replace them with a single battlefield array
 - [x] Give the player a choice to continue or flee at the end of each round
+- [x] Add hex crawling procedure
+- [x] Fix walking off edge of hex map exception
+- [ ] Add a text-based interface structure (CampaignDiary)
+- [ ] Create characters that persist in hex crawls and battles
+- [ ] Add a message which tells the player which direction they moved in if they get lost
 - [ ] Create a useful battle class
-- [ ] Add hex crawling procedure
 - [ ] Different columns per battlefield per rank
 - [ ] Different dice per 'class'
 - [ ] Attack/hit stats

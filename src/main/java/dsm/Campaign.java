@@ -6,7 +6,7 @@ import java.util.Scanner;
 public class Campaign {
     public static HexMap makeWorldMap() {
         Hex overworldMap[] = new Hex[] {
-            new Hex( 2, 0, Terrain.Woods, null),
+            new Hex(2, 0, Terrain.Woods, null),
             new Hex(3, 0, Terrain.Woods, null),
             new Hex(4, 0, Terrain.Woods, null),
             new Hex(5, 0, Terrain.Mountains, null),
@@ -28,7 +28,7 @@ public class Campaign {
             new Hex(0, 3, Terrain.Hills, null),
             new Hex(1, 3, Terrain.Hills, null),
             new Hex(2, 3, Terrain.Woods, null),
-            new Hex(3, 3, Terrain.Swamp, "Adamantine Deposit"),
+            new Hex(3, 3, Terrain.Swamp, "Adamantite Deposit"),
             new Hex(4, 3, Terrain.Mountains, null),
             new Hex(5, 3, Terrain.Mountains, null),
             new Hex(6, 3, Terrain.Woods, null),
@@ -107,7 +107,9 @@ public class Campaign {
         tellTerrain();
         MultipleChoiceQuestion directionQuestion = new MultipleChoiceQuestion();
         for(int i=0; i<Coordinate.directionNames.length; i++) {
-            directionQuestion.addOption("Move " + Coordinate.directionNames[i] + " into " + world.hexAt(partyCoordinate.plus(Coordinate.DIRECTIONS[i])).terrain + ".");
+            if(world.hexAtMaybe(partyCoordinate.plus(Coordinate.DIRECTIONS[i]).east, partyCoordinate.plus(Coordinate.DIRECTIONS[i]).southeast) != null) {
+                directionQuestion.addOption("Move " + Coordinate.directionNames[i] + " into " + world.hexAt(partyCoordinate.plus(Coordinate.DIRECTIONS[i])).terrain + ".");
+            }            
         };
         int ss = directionQuestion.addOption("Stay still in " + world.hexAt(partyCoordinate).terrain.toString().toLowerCase() + ".");
         int directionChoice = directionQuestion.ask(scan);

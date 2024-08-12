@@ -11,13 +11,13 @@ public class Dice {
 
     public int d6() {
         int roll = rndm.nextInt(6)+1;
-        System.out.println("You rolled a " + roll + ".");
+        //System.out.println("You rolled a " + roll + ".");
         return roll;
     }
 
     public int d20() {
         int roll = rndm.nextInt(20)+1;
-        System.out.println("You rolled a " + roll + ".");
+        //System.out.println("You rolled a " + roll + ".");
         return roll;
     }
 }
