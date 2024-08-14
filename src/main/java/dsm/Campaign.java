@@ -107,9 +107,7 @@ public class Campaign {
         tellTerrain();
         MultipleChoiceQuestion directionQuestion = new MultipleChoiceQuestion();
         for(int i=0; i<Coordinate.directionNames.length; i++) {
-            if(world.hexAtMaybe(partyCoordinate.plus(Coordinate.DIRECTIONS[i]).east, partyCoordinate.plus(Coordinate.DIRECTIONS[i]).southeast) != null) {
-                directionQuestion.addOption("Move " + Coordinate.directionNames[i] + " into " + world.hexAt(partyCoordinate.plus(Coordinate.DIRECTIONS[i])).terrain + ".");
-            }            
+            directionQuestion.addOption("Move " + Coordinate.directionNames[i] + " into " + world.hexAt(partyCoordinate.plus(Coordinate.DIRECTIONS[i])).terrain + ".");          
         };
         int ss = directionQuestion.addOption("Stay still in " + world.hexAt(partyCoordinate).terrain.toString().toLowerCase() + ".");
         int directionChoice = directionQuestion.ask(scan);
