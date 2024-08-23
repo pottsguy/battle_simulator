@@ -1,12 +1,16 @@
 package dsm;
 
-import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
 
     public static void main(String args[]) {
+        Scanner scan = new Scanner(System.in);
+        Dice dice = new Dice();
+        Character testChar = new Character(dice, scan);
+    }
 
+    public static void mainProper(String args[]) {
         Dice dice = new Dice();
         Scanner scan = new Scanner(System.in);
 

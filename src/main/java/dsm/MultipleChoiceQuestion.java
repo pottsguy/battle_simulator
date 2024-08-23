@@ -17,29 +17,34 @@ class MultipleChoiceQuestion {
         return options.size() - 1;
     }
 
+    public void skipOption() {
+        options.add(null);
+    }
+
     //ask() automatically prints option indexes; ask the question and return the index of the option chosen
     public int ask(Scanner scan) {
         if (options.size()==0) {
             throw new RuntimeException("Question asked with no options!");
         }
-        int decision = 0;
-        while (decision == 0) {
+        int decision = -1;
+        while (decision == -1) {
             System.out.println("What do you do?");
             for (int i=0; i<options.size(); i++) {
-                System.out.println(i+1 + ") " + options.get(i));
+                if(options.get(i) != null) {
+                    System.out.println(i+1 + ") " + options.get(i));
+                }
             }
             try {
-                decision = scan.nextInt();
+                decision = scan.nextInt() - 1;
             } catch (InputMismatchException ex) {
                 scan.next();
-                decision=0;
+                decision= -1;
             }
-            if (decision<1 || decision>options.size()) {
+            if (decision<0 || decision>=options.size() || options.get(decision) == null) {
                 System.out.println("Not a valid option, try again.");
-                decision=0;
+                decision=-1;
             }
         }
-        decision--; //decrement because input is 1-based while java is 0-based
         System.out.println("You " + options.get(decision));
         return decision;
     }

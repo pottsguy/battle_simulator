@@ -92,6 +92,31 @@ public class Campaign {
         this.world.coordinate.add(partyCoordinate);
     }
 
+    WeaponType[] weapons = new WeaponType[] {
+        new WeaponType(WeaponName.None, 2, 2, 2),
+        new WeaponType(WeaponName.Dagger, 2, 3, 4),
+        new WeaponType(WeaponName.Spear1h, 2, 4, 6),
+        new WeaponType(WeaponName.Sword, 2, 4, 6),
+        new WeaponType(WeaponName.Sling, 2, 4, 6),
+        new WeaponType(WeaponName.Spear2h, 2, 5, 7),
+        new WeaponType(WeaponName.Battleaxe, 2, 5, 7),
+        new WeaponType(WeaponName.Bow, 2, 5, 7)
+    };
+
+    ArmourType[] armour = new ArmourType[] {
+        new ArmourType(ArmourName.Helmet, 2),
+        new ArmourType(ArmourName.Breastplate, 2),
+        new ArmourType(ArmourName.Pauldrons, 1),
+        new ArmourType(ArmourName.Greaves, 1),
+    };
+
+    Character[] party = new Character[] {
+        new Character("Filinus", Profession.Sage),
+        new Character("Mysto", Profession.Shaman),
+        new Character("Stoop", Profession.Thief),
+        new Character("Brutus", Profession.Warrior)
+    };
+
     void tellTerrain() {
         Hex currentHex = world.hexAt(partyCoordinate.east, partyCoordinate.southeast);
         System.out.print("This area consists of " + currentHex.terrain.toString().toLowerCase());

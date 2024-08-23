@@ -2,6 +2,8 @@ package dsm;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.Scanner;
+
 import org.junit.Test;
 
 /**
@@ -9,12 +11,8 @@ import org.junit.Test;
  */
 public class AppTest 
 {
-    /**
-     * Rigorous Test :-)
-     */
     @Test
-    public void shouldAnswerWithTrue()
+    public void testCharacter()
     {
-        assertTrue( true );
     }
 }
