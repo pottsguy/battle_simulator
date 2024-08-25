@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Campaign {
+
+    //this is where the overworld hex map is defined
     public static HexMap makeWorldMap() {
         Hex overworldMap[] = new Hex[] {
             new Hex(2, 0, Terrain.Woods, null),
@@ -92,6 +94,7 @@ public class Campaign {
         this.world.coordinate.add(partyCoordinate);
     }
 
+    //this is a list of the weapons and armours available in the campaign
     WeaponType[] weapons = new WeaponType[] {
         new WeaponType(WeaponName.None, 2, 2, 2),
         new WeaponType(WeaponName.Dagger, 2, 3, 4),
@@ -102,7 +105,6 @@ public class Campaign {
         new WeaponType(WeaponName.Battleaxe, 2, 5, 7),
         new WeaponType(WeaponName.Bow, 2, 5, 7)
     };
-
     ArmourType[] armour = new ArmourType[] {
         new ArmourType(ArmourName.Helmet, 2),
         new ArmourType(ArmourName.Breastplate, 2),
@@ -110,6 +112,7 @@ public class Campaign {
         new ArmourType(ArmourName.Greaves, 1),
     };
 
+    //this is where the party is defined
     Character[] party = new Character[] {
         new Character("Filinus", Profession.Sage),
         new Character("Mysto", Profession.Shaman),
@@ -128,11 +131,22 @@ public class Campaign {
         System.out.print("\n");
     }
 
+    //this is where the game asks the player which direction they want to travel when hex-crawling
+
+    //if the player chooses to stay still, then stay still
+    //otherwise, roll to see if the party gets lost
+    //if they don't get lost, respect their decision
+    //if they get lost, override their decision with another non stay still option at random
+
     void hexTravel() {
         tellTerrain();
         MultipleChoiceQuestion directionQuestion = new MultipleChoiceQuestion();
         for(int i=0; i<Coordinate.directionNames.length; i++) {
-            directionQuestion.addOption("Move " + Coordinate.directionNames[i] + " into " + world.hexAt(partyCoordinate.plus(Coordinate.DIRECTIONS[i])).terrain + ".");          
+            if(world.hexAtMaybe(partyCoordinate.plus(Coordinate.DIRECTIONS[i])) != null) {
+                directionQuestion.addOption("Move " + Coordinate.directionNames[i] + " into " + world.hexAt(partyCoordinate.plus(Coordinate.DIRECTIONS[i])).terrain + ".");
+            } else {
+                directionQuestion.skipOption();
+            }
         };
         int ss = directionQuestion.addOption("Stay still in " + world.hexAt(partyCoordinate).terrain.toString().toLowerCase() + ".");
         int directionChoice = directionQuestion.ask(scan);
@@ -158,7 +172,13 @@ public class Campaign {
             partyCoordinate.move(Coordinate.DIRECTIONS[directionChoice]);
         } else {
             System.out.println("You got lost.");
-            partyCoordinate.move(Coordinate.DIRECTIONS[dice.d6()]);
+            if(dice.d6()<4) {
+                directionChoice = directionChoice +1;
+                partyCoordinate.move(Coordinate.DIRECTIONS[directionChoice]);
+            } else {
+                directionChoice = directionChoice -1;
+                partyCoordinate.move(Coordinate.DIRECTIONS[directionChoice]);
+            }
         }
     }
 

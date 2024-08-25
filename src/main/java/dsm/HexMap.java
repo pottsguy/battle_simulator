@@ -21,6 +21,10 @@ class HexMap {
         return null;
     }
 
+    public Hex hexAtMaybe(Coordinate m) {
+        return hexAtMaybe(m.east, m.southeast);
+    }
+
     // Get the hex at east, southeast or throw a runtime error
     public Hex hexAt(int east, int southEast) {
         Hex hex = this.hexAtMaybe(east, southEast);
