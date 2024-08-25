@@ -28,7 +28,7 @@ class MultipleChoiceQuestion {
         }
         int decision = -1;
         while (decision == -1) {
-            System.out.println("What do you do?");
+            //System.out.println("What do you do?");
             for (int i=0; i<options.size(); i++) {
                 if(options.get(i) != null) {
                     System.out.println(i+1 + ") " + options.get(i));
@@ -45,7 +45,7 @@ class MultipleChoiceQuestion {
                 decision=-1;
             }
         }
-        System.out.println("You " + options.get(decision));
+        //System.out.println("You " + options.get(decision));
         return decision;
     }
 }

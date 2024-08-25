@@ -122,13 +122,21 @@ public class Campaign {
 
     void tellTerrain() {
         Hex currentHex = world.hexAt(partyCoordinate.east, partyCoordinate.southeast);
-        System.out.print("This area consists of " + currentHex.terrain.toString().toLowerCase());
-        if(currentHex.landmark != null) {
-            System.out.print(", there is a " + currentHex.landmark + " in this area.");
-        } else {
-            System.out.print(".");
+        System.out.print("You are standing ");
+        if(currentHex.terrain == Terrain.Hills) {
+            System.out.print("upon a grassy hillside");
+        } else if(currentHex.terrain == Terrain.Mountains) {
+            System.out.print("upon a rugged mountainside");
+        } else if(currentHex.terrain == Terrain.Swamp) {
+            System.out.print("within a foetid swamp");
+        } else if(currentHex.terrain == Terrain.Woods) {
+            System.out.print("within a dense woodland");
         };
-        System.out.print("\n");
+        if(currentHex.landmark == null) {
+            System.out.println(".");
+        } else {
+            System.out.println(" and there is a " + currentHex.landmark.toString() + " nearby.");
+        };
     }
 
     //this is where the game asks the player which direction they want to travel when hex-crawling
@@ -263,21 +271,149 @@ public class Campaign {
             throw new RuntimeException("weather/terrain combo not supported");
         }
 
+        MultipleChoiceQuestion survivalQuestion = new MultipleChoiceQuestion();
+        
+        survivalQuestion.addOption("Light a fire");
+        survivalQuestion.addOption("Forage for food.");
+        survivalQuestion.addOption("Forage for food and light a fire.");
+        Boolean fireChosen = false;
+        Boolean forageChosen = false;
+        int survivalChoice = survivalQuestion.ask(scan);
+        int fireRoll=dice.d6();
         int forageRoll=dice.d6();
-        if(forageRoll < forageChances) {
-            System.out.println("You found a mushrooms.");
+        int fireFlavour=dice.d6();
+        int forageFlavour=dice.d6();
+        
+        if(survivalChoice==0) {
+            fireChosen = true;
+        } else if(survivalChoice==1) {
+            forageChosen = true;
+        } else if(survivalChoice==2) {
+            fireChosen = true;
+            forageChosen = true;
         }
 
-        int fireRoll=dice.d6();
-        if(fireRoll < fireChances) {
-            System.out.println("You lit a fire.");
-        } else {
-            System.out.println("You didn't manage to light a fire.");
+        if(fireChosen==true) {
+            if(fireRoll<=fireChances) {
+                System.out.println("You warm yourself by a crackling campfire.");
+            } else {
+                if(world.hexAt(partyCoordinate).terrain == Terrain.Mountains) {
+                    System.out.println("You find no decent, dry wood to burn around here.");
+                } else if(world.hexAt(partyCoordinate).terrain == Terrain.Swamp) {
+                    System.out.println("All the wood you find around here is damp and rotten.");
+                } else if(weather==Weather.Rainy || weather==Weather.Stormy) {
+                    System.out.println("It's simply too damp to get a fire lit tonight.");
+                } else if(fireFlavour==1 || fireFlavour==2) {
+                    System.out.println("You don't manage to get a fire lit.");
+                } else if(fireFlavour==3 || fireFlavour==4) {
+                    System.out.println("Try as you might, your campfire just won't catch.");
+                } else if(fireFlavour==5 || fireFlavour==6) {
+                    System.out.println("You fail to light a fire, you'll have to go without tonight.");
+                }
+            }
+        }
+
+        if(forageChosen==true) {
+            if(forageRoll<=forageChances) {
+                if(world.hexAt(partyCoordinate).terrain==Terrain.Hills) {
+                    if(forageFlavour==1 || forageFlavour==2) {
+                        System.out.println("You find some wild herbs, it's not much, but it will do.");
+                    } else if(forageFlavour==3 || forageFlavour==4) {
+                        System.out.println("You pull some wild onions out of the ground, this should do nicely.");
+                    } else if(forageFlavour==5 || forageFlavour==5) {
+                        System.out.println("You catch a wild rabbit, quite the treat.");
+                    };
+                } else if(world.hexAt(partyCoordinate).terrain==Terrain.Mountains) {
+                    if(forageFlavour==1 || forageFlavour==2) {
+                        System.out.println("You find some surprisingly-filling lichen on a rock.");
+                    } else if(forageFlavour==3 || forageFlavour==4) {
+                        System.out.println("You find a bed of thick moss. It's not the tastiest, but it is nutritious.");
+                    } else if(forageFlavour==5 || forageFlavour==5) {
+                        System.out.println("You find a nest of some sort and take a few of the eggs.");
+                    };
+                } else if(world.hexAt(partyCoordinate).terrain==Terrain.Swamp) {
+                    if(forageFlavour==1 || forageFlavour==2) {
+                        System.out.println("You find some bitter-tasting but edible herbs growing beside the water.");
+                    } else if(forageFlavour==3 || forageFlavour==4) {
+                        System.out.println("You catch some small freshwater crabs. They nip at your fingers.");
+                    } else if(forageFlavour==5 || forageFlavour==5) {
+                        System.out.println("You pull a fat fish out of the water, this should fill you up.");
+                    };
+                } else if(world.hexAt(partyCoordinate).terrain==Terrain.Woods) {
+                    if(forageFlavour==1 || forageFlavour==2) {
+                        System.out.println("You find a patch of plump, brown mushrooms. They're probably safe to eat.");
+                    } else if(forageFlavour==3 || forageFlavour==4) {
+                        System.out.println("You find a bush teeming with rich, red berries.");
+                    } else if(forageFlavour==5 || forageFlavour==5) {
+                        System.out.println("You find a bird's nest in a tree and take a few for yourself.");
+                    };
+                };
+            } else {
+                if(world.hexAt(partyCoordinate).terrain==Terrain.Hills) {
+                    if(forageFlavour==1 || forageFlavour==2) {
+                        System.out.println("You find nothing substantial among the tall grass.");
+                    } else if(forageFlavour==3 || forageFlavour==4) {
+                        System.out.println("You try to catch a rabbit, but it gets away.");
+                    } else if(forageFlavour==1 || forageFlavour==2) {
+                        System.out.println("You wander around the area until you are forced to give up the hunt.");
+                    }
+                } else if(world.hexAt(partyCoordinate).terrain==Terrain.Mountains) {
+                    if(forageFlavour==1 || forageFlavour==2) {
+                        System.out.println("This barren mountainside yields no sustenance.");
+                    } else if(forageFlavour==3 || forageFlavour==4) {
+                        System.out.println("You find only tough grass and lichen.");
+                    } else if(forageFlavour==1 || forageFlavour==2) {
+                        System.out.println("You only hear the cawing of crows that eye you hungrily.");
+                    }
+                } else if(world.hexAt(partyCoordinate).terrain==Terrain.Swamp) {
+                    if(forageFlavour==1 || forageFlavour==2) {
+                        System.out.println("You trudge about for a while, but return to camp empty-handed.");
+                    } else if(forageFlavour==3 || forageFlavour==4) {
+                        System.out.println("You see some fish in the water, but don't manage to catch any.");
+                    } else if(forageFlavour==1 || forageFlavour==2) {
+                        System.out.println("You grab a fat crawfish, but it nips you and you drop it.");
+                    }
+                } else if(world.hexAt(partyCoordinate).terrain==Terrain.Woods) {
+                    if(forageFlavour==1 || forageFlavour==2) {
+                        System.out.println("You try to catch a squirrel, but it evades you.");
+                    } else if(forageFlavour==3 || forageFlavour==4) {
+                        System.out.println("You find nothing but pine cones and rotten acorns.");
+                    } else if(forageFlavour==1 || forageFlavour==2) {
+                        System.out.println("You nibble a few plants, but they are all to bitter to eat.");
+                    }
+                }
+            }
         }
     }
 
     private void tellDay() {
-        System.out.println("It is " + time.toString().toLowerCase() + " of day " + day + ", the weather is " + weather.toString().toLowerCase() + ".");
+        System.out.print("It is " + time.toString().toLowerCase() + " of day " + day);
+        int weatherFlavour = dice.d6();
+        if(weather == Weather.Clear) {
+            if(weatherFlavour == 1 || weatherFlavour == 2) {
+                System.out.println(", the sky is clear and blue.");
+            } else if (weatherFlavour == 3 || weatherFlavour == 4) {
+                System.out.println(", the blue sky is populated with fluffly, white clouds.");
+            } else if (weatherFlavour == 5 || weatherFlavour == 6) {
+                System.out.println(", a pleasant breeze is blowing.");
+            }
+        } else if(weather == Weather.Rainy) {
+            if(weatherFlavour == 1 || weatherFlavour == 2) {
+                System.out.println(", the sky is grey and rain is pouring.");
+            } else if (weatherFlavour == 3 || weatherFlavour == 4) {
+                System.out.println(", a harsh wind is blowing wind into your face.");
+            } else if (weatherFlavour == 5 || weatherFlavour == 6) {
+                System.out.println(", the ground is wet and the rain is lashing down.");
+            }
+        } else if(weather == Weather.Stormy) {
+            if(weatherFlavour == 1 || weatherFlavour == 2) {
+                System.out.println(", a storm is raging all around.");
+            } else if (weatherFlavour == 3 || weatherFlavour == 4) {
+                System.out.println(", the wind howls and the sound of thunder fills the air.");
+            } else if (weatherFlavour == 5 || weatherFlavour == 6) {
+                System.out.println(", the sky is dark with crackling stormclouds.");
+            }
+        }
     }
     
     private void wildernessProcedure() {
@@ -294,6 +430,8 @@ public class Campaign {
             time = TimeOfDay.Night;
         } else if (time == TimeOfDay.Night) {
             tellDay();
+            tellTerrain();
+            System.out.println("It's time to set up camp for the night.");
             survival();
             randomEncounter();
             day ++;
