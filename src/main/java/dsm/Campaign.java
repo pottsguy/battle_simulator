@@ -140,12 +140,6 @@ public class Campaign {
     }
 
     //this is where the game asks the player which direction they want to travel when hex-crawling
-
-    //if the player chooses to stay still, then stay still
-    //otherwise, roll to see if the party gets lost
-    //if they don't get lost, respect their decision
-    //if they get lost, override their decision with another non stay still option at random
-
     void hexTravel() {
         tellTerrain();
         MultipleChoiceQuestion directionQuestion = new MultipleChoiceQuestion();
@@ -176,17 +170,30 @@ public class Campaign {
         }
 
         int navigationRoll = dice.d6();
+        int navigationFlavour = dice.d6();
         if(navigationRoll <= navigationChances) {
             partyCoordinate.move(Coordinate.DIRECTIONS[directionChoice]);
         } else {
-            System.out.println("You got lost.");
-            if(dice.d6()<4) {
-                directionChoice = directionChoice +1;
-                partyCoordinate.move(Coordinate.DIRECTIONS[directionChoice]);
-            } else {
-                directionChoice = directionChoice -1;
-                partyCoordinate.move(Coordinate.DIRECTIONS[directionChoice]);
+            if(navigationFlavour==1 || navigationFlavour==2) {
+                System.out.println("You got lost and veered in an unexpected direction.");
+            } else if(navigationFlavour==3 || navigationFlavour==4) {
+                System.out.println("You lose sight of the path you were on, have appear to have gotten a bit lost.");
+            } else if(navigationFlavour==5 || navigationFlavour==6) {
+                System.out.println("You have gotten lost and gone in a different direction.");
             }
+            int lostDirection = dice.d6();
+            int directionOffset;
+            if (lostDirection > 3) {
+                directionOffset = 1;
+            } else {
+                directionOffset = -1;
+            }
+            if (world.hexAtMaybe(partyCoordinate.plus(Coordinate.DIRECTIONS[(directionChoice + directionOffset + 6) % 6])) != null) {
+                directionChoice = (directionChoice + directionOffset + 6) % 6;
+            } else {
+                directionChoice = (directionChoice - directionOffset + 6) % 6;
+            }
+            partyCoordinate.move(Coordinate.DIRECTIONS[directionChoice]);
         }
     }
 
@@ -210,7 +217,17 @@ public class Campaign {
         int encounterRoll=dice.d6();
         int encounterChances=1;
         if(encounterRoll<=encounterChances) {
-            System.out.println("A random encounter ensues.");
+            if(time == TimeOfDay.Night) {
+                System.out.println("Your rest is interrupted by the sound of something approaching.");
+            } else if(weather == Weather.Rainy || weather == Weather.Stormy) {
+                System.out.println("You notice something approaching through the lashing rain.");
+            } else if(world.hexAt(partyCoordinate).terrain == Terrain.Mountains) {
+                System.out.println("You hear pebbles tumbling and sense something approaching.");
+            } else if(world.hexAt(partyCoordinate).terrain == Terrain.Woods) {
+                System.out.println("The birds scatter suddenly, signalling the approach of something.");
+            } else {
+                System.out.println("You sense an unexpected presence nearby.");
+            }
             ArrayList<Combatant> battlefield = new ArrayList<>();
             battlefield.add(new Combatant(Team.Ally, "Knight 1", Rank.Vanguard));
             battlefield.add(new Combatant(Team.Ally, "Knight 2", Rank.Vanguard));
@@ -272,12 +289,11 @@ public class Campaign {
         }
 
         MultipleChoiceQuestion survivalQuestion = new MultipleChoiceQuestion();
-        
-        survivalQuestion.addOption("Light a fire");
-        survivalQuestion.addOption("Forage for food.");
-        survivalQuestion.addOption("Forage for food and light a fire.");
         Boolean fireChosen = false;
         Boolean forageChosen = false;
+        survivalQuestion.addOption("Light a fire.");
+        survivalQuestion.addOption("Forage for food.");
+        survivalQuestion.addOption("Forage for food and light a fire.");
         int survivalChoice = survivalQuestion.ask(scan);
         int fireRoll=dice.d6();
         int forageRoll=dice.d6();
@@ -286,31 +302,13 @@ public class Campaign {
         
         if(survivalChoice==0) {
             fireChosen = true;
+            forageChosen = false;
         } else if(survivalChoice==1) {
             forageChosen = true;
+            fireChosen = false;
         } else if(survivalChoice==2) {
             fireChosen = true;
             forageChosen = true;
-        }
-
-        if(fireChosen==true) {
-            if(fireRoll<=fireChances) {
-                System.out.println("You warm yourself by a crackling campfire.");
-            } else {
-                if(world.hexAt(partyCoordinate).terrain == Terrain.Mountains) {
-                    System.out.println("You find no decent, dry wood to burn around here.");
-                } else if(world.hexAt(partyCoordinate).terrain == Terrain.Swamp) {
-                    System.out.println("All the wood you find around here is damp and rotten.");
-                } else if(weather==Weather.Rainy || weather==Weather.Stormy) {
-                    System.out.println("It's simply too damp to get a fire lit tonight.");
-                } else if(fireFlavour==1 || fireFlavour==2) {
-                    System.out.println("You don't manage to get a fire lit.");
-                } else if(fireFlavour==3 || fireFlavour==4) {
-                    System.out.println("Try as you might, your campfire just won't catch.");
-                } else if(fireFlavour==5 || fireFlavour==6) {
-                    System.out.println("You fail to light a fire, you'll have to go without tonight.");
-                }
-            }
         }
 
         if(forageChosen==true) {
@@ -321,7 +319,7 @@ public class Campaign {
                     } else if(forageFlavour==3 || forageFlavour==4) {
                         System.out.println("You pull some wild onions out of the ground, this should do nicely.");
                     } else if(forageFlavour==5 || forageFlavour==5) {
-                        System.out.println("You catch a wild rabbit, quite the treat.");
+                        System.out.println("You catch a wild hornhare, quite the treat.");
                     };
                 } else if(world.hexAt(partyCoordinate).terrain==Terrain.Mountains) {
                     if(forageFlavour==1 || forageFlavour==2) {
@@ -329,7 +327,7 @@ public class Campaign {
                     } else if(forageFlavour==3 || forageFlavour==4) {
                         System.out.println("You find a bed of thick moss. It's not the tastiest, but it is nutritious.");
                     } else if(forageFlavour==5 || forageFlavour==5) {
-                        System.out.println("You find a nest of some sort and take a few of the eggs.");
+                        System.out.println("You find a snake nest and take a few of the eggs.");
                     };
                 } else if(world.hexAt(partyCoordinate).terrain==Terrain.Swamp) {
                     if(forageFlavour==1 || forageFlavour==2) {
@@ -345,7 +343,7 @@ public class Campaign {
                     } else if(forageFlavour==3 || forageFlavour==4) {
                         System.out.println("You find a bush teeming with rich, red berries.");
                     } else if(forageFlavour==5 || forageFlavour==5) {
-                        System.out.println("You find a bird's nest in a tree and take a few for yourself.");
+                        System.out.println("You find a bird's nest in a tree and take a few eggs for yourself.");
                     };
                 };
             } else {
@@ -353,7 +351,7 @@ public class Campaign {
                     if(forageFlavour==1 || forageFlavour==2) {
                         System.out.println("You find nothing substantial among the tall grass.");
                     } else if(forageFlavour==3 || forageFlavour==4) {
-                        System.out.println("You try to catch a rabbit, but it gets away.");
+                        System.out.println("You try to catch a hornhare, but it gets away.");
                     } else if(forageFlavour==1 || forageFlavour==2) {
                         System.out.println("You wander around the area until you are forced to give up the hunt.");
                     }
@@ -382,36 +380,61 @@ public class Campaign {
                         System.out.println("You nibble a few plants, but they are all to bitter to eat.");
                     }
                 }
+                if(fireChosen==true) {
+                    if(fireRoll<=fireChances) {
+                        if(fireFlavour == 1 || fireFlavour == 2) {
+                            System.out.println("You warm yourself by a crackling campfire.");
+                        } else if(fireFlavour == 3 || fireFlavour == 4) {
+                            System.out.println("The heat of the campfire warms you to your bones.");
+                        } else if(fireFlavour == 5 || fireFlavour == 6) {
+                            System.out.println("You manage to light a roaring fire.");
+                        }
+                    } else {
+                        if(world.hexAt(partyCoordinate).terrain == Terrain.Mountains) {
+                            System.out.println("You find no decent, dry wood to burn around here.");
+                        } else if(world.hexAt(partyCoordinate).terrain == Terrain.Swamp) {
+                            System.out.println("All the wood you find around here is damp and rotten to light.");
+                        } else if(weather==Weather.Rainy || weather==Weather.Stormy) {
+                            System.out.println("It's simply too damp to get a fire lit tonight.");
+                        } else if(fireFlavour==1 || fireFlavour==2) {
+                            System.out.println("You don't manage to get a fire lit.");
+                        } else if(fireFlavour==3 || fireFlavour==4) {
+                            System.out.println("Try as you might, your campfire just won't catch.");
+                        } else if(fireFlavour==5 || fireFlavour==6) {
+                            System.out.println("You fail to light a fire, you'll have to go without tonight.");
+                        }
+                    }
+                }
             }
         }
     }
 
     private void tellDay() {
-        System.out.print("It is " + time.toString().toLowerCase() + " of day " + day);
+        System.out.print("---It is " + time.toString().toLowerCase() + " of day " + day);
         int weatherFlavour = dice.d6();
         if(weather == Weather.Clear) {
             if(weatherFlavour == 1 || weatherFlavour == 2) {
-                System.out.println(", the sky is clear and blue.");
+                System.out.println(", the sky is clear and blue.---");
             } else if (weatherFlavour == 3 || weatherFlavour == 4) {
-                System.out.println(", the blue sky is populated with fluffly, white clouds.");
+                System.out.println(", the blue sky is populated with fluffly, white clouds.---");
             } else if (weatherFlavour == 5 || weatherFlavour == 6) {
-                System.out.println(", a pleasant breeze is blowing.");
+                System.out.println(", a pleasant breeze is blowing.---");
             }
         } else if(weather == Weather.Rainy) {
             if(weatherFlavour == 1 || weatherFlavour == 2) {
-                System.out.println(", the sky is grey and rain is pouring.");
+                System.out.println(", the sky is grey and rain is pouring.---");
             } else if (weatherFlavour == 3 || weatherFlavour == 4) {
-                System.out.println(", a harsh wind is blowing wind into your face.");
+                System.out.println(", a harsh wind is blowing wind into your face.---");
             } else if (weatherFlavour == 5 || weatherFlavour == 6) {
-                System.out.println(", the ground is wet and the rain is lashing down.");
+                System.out.println(", the ground is wet and the rain is lashing down.---");
             }
         } else if(weather == Weather.Stormy) {
             if(weatherFlavour == 1 || weatherFlavour == 2) {
-                System.out.println(", a storm is raging all around.");
+                System.out.println(", a storm is raging all around.---");
             } else if (weatherFlavour == 3 || weatherFlavour == 4) {
-                System.out.println(", the wind howls and the sound of thunder fills the air.");
+                System.out.println(", the wind howls and the sound of thunder fills the air.---");
             } else if (weatherFlavour == 5 || weatherFlavour == 6) {
-                System.out.println(", the sky is dark with crackling stormclouds.");
+                System.out.println(", the sky is dark with crackling stormclouds.---");
             }
         }
     }

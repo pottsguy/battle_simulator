@@ -11,6 +11,17 @@ public class Main {
     }
 
     public static void main(String args[]) {
+
+        int remainder;
+        for(int i=-10; i<11; i++) {
+            remainder = i % 6;
+            if(remainder < 0) {
+                remainder = remainder+6;
+            }
+            System.out.println(i + "%" + 6 + "=" + remainder);
+        };
+
+
         Dice dice = new Dice();
         Scanner scan = new Scanner(System.in);
 

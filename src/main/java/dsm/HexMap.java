@@ -11,7 +11,7 @@ class HexMap {
         this.coordinate = new ArrayList<>();
     }
 
-    // Get the hex at east, southeast (or null)
+    //searches for a hex at the given coordinates and returns either the hex, or null
     public Hex hexAtMaybe(int east, int southEast) {
         for (int i=0; i<this.hex.length; i++) {
             if (this.hex[i].east == east && this.hex[i].southEast == southEast) {
@@ -25,7 +25,7 @@ class HexMap {
         return hexAtMaybe(m.east, m.southeast);
     }
 
-    // Get the hex at east, southeast or throw a runtime error
+    //uses hexAtMaybe to refer to a hex, so long as it is not null
     public Hex hexAt(int east, int southEast) {
         Hex hex = this.hexAtMaybe(east, southEast);
         if(hex!=null) {
