@@ -1,7 +1,17 @@
 package dsm;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
+
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.databind.DatabindException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Campaign {
 
@@ -82,6 +92,9 @@ public class Campaign {
     TimeOfDay time;
     HexMap world;
     Coordinate partyCoordinate;
+    ArrayList<Character> party;
+    WeaponType weapons[];
+    ArmourType armour[];
 
     Campaign(Dice dice, Scanner scan) {
         this.dice = dice;
@@ -92,33 +105,25 @@ public class Campaign {
         this.world = makeWorldMap();
         this.partyCoordinate = new Coordinate(0, 5);
         this.world.coordinate.add(partyCoordinate);
+        this.party = new ArrayList<>();
+        this.weapons = new WeaponType[] {
+            new WeaponType(WeaponName.None, 2, 2, 2),
+            new WeaponType(WeaponName.Dagger, 2, 3, 4),
+            new WeaponType(WeaponName.Staff, 2, 4, 6),
+            new WeaponType(WeaponName.Spear1h, 2, 4, 6),
+            new WeaponType(WeaponName.Sword, 2, 4, 6),
+            new WeaponType(WeaponName.Sling, 2, 4, 6),
+            new WeaponType(WeaponName.Spear2h, 2, 5, 7),
+            new WeaponType(WeaponName.Battleaxe, 2, 5, 7),
+            new WeaponType(WeaponName.Bow, 2, 5, 7)
+        };
+        this.armour = new ArmourType[] {
+            new ArmourType(ArmourName.Helmet, 2),
+            new ArmourType(ArmourName.Breastplate, 2),
+            new ArmourType(ArmourName.Pauldrons, 1),
+            new ArmourType(ArmourName.Greaves, 1),
+        };
     }
-
-    //this is a list of the weapons and armours available in the campaign
-    WeaponType[] weapons = new WeaponType[] {
-        new WeaponType(WeaponName.None, 2, 2, 2),
-        new WeaponType(WeaponName.Dagger, 2, 3, 4),
-        new WeaponType(WeaponName.Spear1h, 2, 4, 6),
-        new WeaponType(WeaponName.Sword, 2, 4, 6),
-        new WeaponType(WeaponName.Sling, 2, 4, 6),
-        new WeaponType(WeaponName.Spear2h, 2, 5, 7),
-        new WeaponType(WeaponName.Battleaxe, 2, 5, 7),
-        new WeaponType(WeaponName.Bow, 2, 5, 7)
-    };
-    ArmourType[] armour = new ArmourType[] {
-        new ArmourType(ArmourName.Helmet, 2),
-        new ArmourType(ArmourName.Breastplate, 2),
-        new ArmourType(ArmourName.Pauldrons, 1),
-        new ArmourType(ArmourName.Greaves, 1),
-    };
-
-    //this is where the party is defined
-    Character[] party = new Character[] {
-        new Character("Filinus", Profession.Sage),
-        new Character("Mysto", Profession.Shaman),
-        new Character("Stoop", Profession.Thief),
-        new Character("Brutus", Profession.Warrior)
-    };
 
     void tellTerrain() {
         Hex currentHex = world.hexAt(partyCoordinate.east, partyCoordinate.southeast);
@@ -197,19 +202,146 @@ public class Campaign {
         }
     }
 
-    public void run() {
+    public void run() throws IOException {
+        try {
+            // FileReader extends Reader
+            FileReader reader = new FileReader("saveFile.json");
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.setVisibility(PropertyAccessor.ALL, Visibility.NONE);
+            mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+            // T readValue(Reader src, Class<T> valueType) throws IOException, StreamReadException, DatabindException
+            Character[] loadedCharacters = mapper.readValue(reader, Character[].class);
+            for(int i=0; i<loadedCharacters.length; i++) {
+                party.add(loadedCharacters[i]);
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("A new adventure awaits you ...");
+        }
+
         while(true) {
-            //call character generation procedure
-
-            //call town procedure
-
+            charGenProcedure();
             wildernessProcedure();
-
+            //call town procedure
             //call dungeon exploration procedure
-
             //call encounter procedure
-
             //call combat procedure
+        }
+    }
+
+    public void generateCharacter() {
+        Character generated = new Character();
+        System.out.println("---Generating a character.---");
+        generated.strength = dice.d6() + dice.d6() + 3;
+        System.out.println("Strength score: " + generated.strength);
+        generated.dexterity = dice.d6() + dice.d6() + 3;
+        System.out.println("Dexterity score: " + generated.dexterity);
+        generated.intelligence = dice.d6() + dice.d6() + 3;
+        System.out.println("Intelligence score: " + generated.intelligence);
+        generated.charisma = dice.d6() + dice.d6() + 3;
+        System.out.println("Charisma score: " + generated.charisma);
+
+        if(generated.strength<12 && generated.dexterity<12 && generated.intelligence<12 && generated.charisma<12) {
+            System.out.println("Your attributes are too low. Choose an attribute to boost to 12.");
+            MultipleChoiceQuestion attributeQuestion = new MultipleChoiceQuestion();
+            attributeQuestion.addOption("Strength");
+            attributeQuestion.addOption("Dexterity");
+            attributeQuestion.addOption("Intelligence");
+            attributeQuestion.addOption("Charisma");
+            int attributeChoice = attributeQuestion.ask(scan);
+            if(attributeChoice == 0) {
+                generated.strength = 12;
+            } else if(attributeChoice == 1) {
+                generated.dexterity = 12;
+            } else if(attributeChoice == 2) {
+                generated.intelligence = 12;
+            } else if(attributeChoice == 3) {
+                generated.charisma = 12;
+            }
+        }
+        System.out.println("Now, choose a profession.");
+        MultipleChoiceQuestion professionQuestion = new MultipleChoiceQuestion();
+        if(generated.intelligence > 11) {
+            professionQuestion.addOption(Profession.Sage.toString());
+        } else {
+            professionQuestion.skipOption();
+        };
+        if(generated.charisma > 11) {
+            professionQuestion.addOption(Profession.Shaman.toString());
+        } else {
+            professionQuestion.skipOption();
+        };
+        if(generated.dexterity > 11) {
+            professionQuestion.addOption(Profession.Thief.toString());
+        } else {
+            professionQuestion.skipOption();
+        };
+        if(generated.strength > 11) {
+            professionQuestion.addOption(Profession.Warrior.toString());
+        } else {
+            professionQuestion.skipOption();
+        };
+        int professionChoice = professionQuestion.ask(scan);
+        if(professionChoice == 0) {
+            generated.profession = Profession.Sage;
+        } else if(professionChoice == 1) {
+            generated.profession = Profession.Shaman;
+        } else if(professionChoice == 2) {
+            generated.profession = Profession.Thief;
+        } else if(professionChoice == 3) {
+            generated.profession = Profession.Warrior;
+        }
+
+        if(generated.profession == Profession.Warrior) {
+            generated.hitsMax = dice.d6()+4;
+        } else if(generated.profession == Profession.Thief) {
+            generated.hitsMax = dice.d6()+3;
+        } else if(generated.profession == Profession.Sage) {
+            generated.hitsMax = dice.d6()+2;
+        } else if(generated.profession == Profession.Shaman) {
+            generated.hitsMax = dice.d6()+3;
+        }
+        generated.hitsCurrent = generated.hitsMax;
+        System.out.println("Your character has " + generated.hitsMax + " hits.");
+
+        System.out.println("Choose a starting weapon.");
+        MultipleChoiceQuestion startingWeaponQuestion = new MultipleChoiceQuestion();
+        if(generated.profession == Profession.Warrior) {
+            startingWeaponQuestion.addOption("Sword & shield.");
+            startingWeaponQuestion.addOption("Battleaxe.");
+            startingWeaponQuestion.addOption("Bow.");
+        } else if(generated.profession == Profession.Thief) {
+            startingWeaponQuestion.addOption("Sword & sling.");
+        } else if(generated.profession == Profession.Sage) {
+            startingWeaponQuestion.addOption("Staff.");
+        } else if(generated.profession == Profession.Shaman) {
+            startingWeaponQuestion.addOption("Sword & shield.");
+            startingWeaponQuestion.addOption("Sling & shield.");
+        }
+        startingWeaponQuestion.ask(scan);
+        
+        System.out.println("What is this character's name?");
+        //TODO: the following line is probably wrong?
+        scan.next(); // consume the previous newline character
+        generated.name = scan.nextLine();
+        party.add(generated);
+        //return generated;
+    }
+
+    private void charGenProcedure() {
+        while(party.size()<3) {
+            generateCharacter();
+        }
+        try {
+            FileWriter writer = new FileWriter("saveFile.json");
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.setVisibility(PropertyAccessor.ALL, Visibility.NONE);
+            mapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+            Character[] partyAsArray = party.toArray(new Character[party.size()]);
+            mapper.writeValue(writer, partyAsArray);
+            System.out.println("Saved game.");
+        } catch (IOException e) {
+            System.out.println("failed to save.");
+            e.printStackTrace();
         }
     }
 

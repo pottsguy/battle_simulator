@@ -2,6 +2,7 @@ package dsm;
 
 class WeaponType {
     WeaponName name;
+    
     int damageMin;
     int damageMid;
     int damageMax;

@@ -1,5 +1,5 @@
 package dsm;
 
 enum ArmourName {
-    None, Helmet, Breastplate, Pauldrons, Greaves
+    Helmet, Breastplate, Pauldrons, Greaves, None
 }
